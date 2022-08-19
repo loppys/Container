@@ -1,0 +1,54 @@
+name: Generate next version
+
+on:
+  push:
+    branches:
+    - master
+    - develop
+    paths-ignore:
+    - '**.md'
+    - '**.yml'
+    - 'init/*'
+
+jobs:
+  generate:
+    name: auto-update
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 'Get Previous tag'
+        id: previous
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: 'Get next version'
+        id: semvers
+        uses: WyriHaximus/github-action-next-semvers@v1
+        with:
+          version: ${{ steps.previous.outputs.tag }}
+
+      - name: minor
+        id: minor
+        if: ${{ github.ref == 'refs/heads/develop' }}
+
+        uses: negz/create-tag@v1
+
+        with:
+          version: ${{ steps.semvers.outputs.minor }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: patch
+        id: patch
+        if: ${{ github.ref != 'refs/heads/develop' }}
+          
+        uses: negz/create-tag@v1
+        
+        with:
+          version: ${{ steps.semvers.outputs.patch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
