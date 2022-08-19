@@ -1,5 +1,5 @@
 {
-    "name": "vengine/loader",
+    "name": "vengine-modules/loader",
     "description": "vengine loader (system)",
     "type": "library",
     "autoload": {
