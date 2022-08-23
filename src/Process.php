@@ -19,6 +19,33 @@ class Process extends Storage
 
     $info = parent::get($name);
 
+    if (empty($info['handler'])) {
+      return null;
+    }
+
+    $rm = new \ReflectionMethod($info['handler'], '__construct');
+    $params = $rm->getParameters();
+
+    if (count($params) > 0) {
+      $type = [];
+
+      foreach ($params as $key => $value) {
+        if (empty($value->getType())) {
+          continue;
+        }
+
+        if (!class_exists($value->getType()->getName())) {
+          continue;
+        }
+
+        $name = (new \ReflectionClass($value->getType()->getName()))->getShortName();
+
+        $info['param'][] = self::callModule($name);
+
+        parent::change($info['name'], ['param' => $info['param']]);
+      }
+    }
+
     if (!empty($info['call'])) {
       if (is_array($info['call'])) {
         foreach ($info['call'] as $name) {
@@ -47,27 +74,22 @@ class Process extends Storage
       $info['group'] = $group;
     }
 
-    switch ($info['group']) {
-      case parent::getGroupByName($name) === parent::GROUP_MODULES:
-        if ($info['package']) {
-          return Builder::create($info, parent::GROUP_MODULES);
-        }
-        break;
-      case parent::getGroupByName($name) === parent::GROUP_COMMON:
-        if ($info['handler']) {
-          return Builder::create($info, parent::GROUP_COMMON);
-        }
-        break;
-      case parent::getGroupByName($name) === parent::GROUP_SYSTEM:
-        return Builder::create($info, parent::GROUP_SYSTEM);
-        break;
-
-      default:
-        return null;
-        break;
+    if (self::issetGroup($info['group'])) {
+      return Builder::create($info, $info['group']);
     }
 
     return null;
+  }
+
+  public static function issetGroup(string $group): bool
+  {
+    $allGroup = [
+      parent::GROUP_COMMON,
+      parent::GROUP_SYSTEM,
+      parent::GROUP_MODULES,
+    ];
+
+    return in_array($group, $allGroup);
   }
 
   public static function addModule(
