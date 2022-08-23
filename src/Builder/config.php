@@ -15,6 +15,5 @@ return [
   [
     'name' => 'LocalPage',
     'handler' => \Vengine\Controllers\Page\LocalPage::class,
-    'call' => 'DataPageTransformer',
   ]
 ];
