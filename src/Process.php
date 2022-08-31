@@ -4,8 +4,10 @@ namespace Loader;
 
 use Loader\Builder\Storage;
 use Loader\Builder\Builder;
+use \ReflectionClass;
+use \ReflectionMethod;
 
-class Process extends Storage
+class Process
 {
   public static function callModule(
     string $name,
@@ -13,37 +15,75 @@ class Process extends Storage
     string $group = '',
     bool $merge = false
   ): ?object {
-    if (!parent::$configIsset) {
-      parent::setDefault();
+    if (!Storage::$configIsset) {
+      Storage::setDefault();
     }
 
-    $info = parent::get($name);
+    $info = Storage::get($name);
 
-    if (empty($info['handler'])) {
+    if (empty($info['handler']) && !class_exists($info['handler'])) {
       return null;
     }
 
-    $rm = new \ReflectionMethod($info['handler'], '__construct');
-    $params = $rm->getParameters();
+    $rc = self::getConstructor($info['handler']);
+
+    if (!empty($rc)) {;
+      $params = self::getParameters($rc->class);
+    }
 
     if (count($params) > 0) {
-      $type = [];
-
       foreach ($params as $key => $value) {
         if (empty($value->getType())) {
           continue;
         }
 
-        if (!class_exists($value->getType()->getName())) {
+        $class = $value->getType()->getName();
+
+        if (!class_exists($class)) {
           continue;
         }
 
-        $name = (new \ReflectionClass($value->getType()->getName()))->getShortName();
+        $moduleName = (new ReflectionClass($class))->getShortName();
 
-        $info['param'][] = self::callModule($name);
+        if (Storage::has($moduleName)) {
+          $info['param'][] = self::callModule($moduleName);
+        } else {
+          $rc = self::getConstructor($class);
 
-        parent::change($info['name'], ['param' => $info['param']]);
+          if (!empty($rc)) {
+            if ($params = self::getParameters($rc->class)) {
+              foreach ($params as $key => $value) {
+                if (empty($value->getType())) {
+                  $info['param'][] = Builder::createCommonObject($class);
+                  continue;
+                }
+
+                $class = $value->getType()->getName();
+
+                if (!class_exists($class)) {
+                  continue;
+                }
+
+                $name = (new ReflectionClass($class))->getShortName();
+
+                if (!Storage::has($name)) {
+                  self::addModule(
+                    $name,
+                    Storage::GROUP_COMMON,
+                    $class
+                  );
+                }
+
+                $info['param'][] = self::callModule($name);
+              }
+            }
+          } else {
+            $info['param'][] = Builder::createCommonObject($class);
+          }
+        }
       }
+
+      Storage::change($info['name'], ['param' => $info['param']]);
     }
 
     if (!empty($info['call'])) {
@@ -55,11 +95,11 @@ class Process extends Storage
         $info['param'][] = self::callModule($info['call']);
       }
 
-      parent::change($info['name'], ['param' => $info['param']]);
+      Storage::change($info['name'], ['param' => $info['param']]);
     }
 
     if (empty($info['group'])) {
-      $info['group'] = parent::GROUP_COMMON;
+      $info['group'] = Storage::GROUP_COMMON;
     }
 
     if (!empty($param)) {
@@ -81,15 +121,33 @@ class Process extends Storage
     return null;
   }
 
-  public static function issetGroup(string $group): bool
+  public static function getConstructor(string $class = ''): ?ReflectionMethod
   {
-    $allGroup = [
-      parent::GROUP_COMMON,
-      parent::GROUP_SYSTEM,
-      parent::GROUP_MODULES,
+    if (empty($class)) {
+      return null;
+    }
+
+    return (new ReflectionClass($class))->getConstructor();
+  }
+
+  public static function getParameters(string $class = ''): array
+  {
+    if (empty($class)) {
+      return [];
+    }
+
+    return (new ReflectionMethod($class, '__construct'))->getParameters();
+  }
+
+  public static function issetGroup(string $name): bool
+  {
+    $groups = [
+      Storage::GROUP_COMMON,
+      Storage::GROUP_SYSTEM,
+      Storage::GROUP_MODULES,
     ];
 
-    return in_array($group, $allGroup);
+    return in_array($name, $groups);
   }
 
   public static function addModule(
@@ -107,6 +165,6 @@ class Process extends Storage
       'path' => $path
     ];
 
-    parent::add($name, parent::GROUP_MODULES, $data);
+    Storage::add($name, Storage::GROUP_MODULES, $data);
   }
 }
