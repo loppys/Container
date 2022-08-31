@@ -9,10 +9,6 @@ return [
     'create' => true,
   ],
   [
-    'name' => 'DataPageTransformer',
-    'handler' => \Vengine\Controllers\Page\DataPageTransformer::class,
-  ],
-  [
     'name' => 'LocalPage',
     'handler' => \Vengine\Controllers\Page\LocalPage::class,
   ]

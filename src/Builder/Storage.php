@@ -69,6 +69,11 @@ class Storage
     }
   }
 
+  public static function has(string $name): bool
+  {
+    return !empty(self::get($name));
+  }
+
   public static function get(string $name): array
   {
     $group = self::getGroupByName($name);

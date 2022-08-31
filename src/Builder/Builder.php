@@ -15,22 +15,25 @@ class Builder
   {
     switch ($type) {
       case self::TYPE_COMMON:
-        $object = self::getObject($info['handler'], $info['param'], $info['name']);
-        Storage::change($info['name'], ['object' => $object]);
-        return $object;
+        if ($object = Storage::get($info['name'] ?: '')['object']) {
+          return $object;
+        } else {
+          return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+        }
         break;
       case self::TYPE_MODULES:
-        $object = self::getObject($info['handler'], $info['param'], $info['name']);
-        Storage::change($info['name'], ['object' => $object]);
-        return $object;
+        if ($object = Storage::get($info['name'] ?: '')['object']) {
+          return $object;
+        } else {
+          return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+        }
         break;
       case self::TYPE_SYSTEM:
         if ($info['object'] === true) {
           return null;
         }
 
-        $object = self::getObject($info['handler'], $info['param'], $info['name']);
-        Storage::change($info['name'], ['object' => $object]);
+        $object = self::createCommonObject($info['handler'], $info['param'], $info['name']);
         return $object;
         break;
 
@@ -40,12 +43,8 @@ class Builder
     }
   }
 
-  private static function getObject(string $class, ?array $param, string $name = ''): ?object
+  public static function createCommonObject(string $class, ?array $param = null, string $name = ''): ?object
   {
-    if ($object = Storage::get($name)['object']) {
-      return $object;
-    }
-
     $object = null;
 
     if (class_exists($class)) {
@@ -53,6 +52,10 @@ class Builder
         $object = new $class(...$param);
       } else {
         $object = new $class();
+      }
+
+      if (!empty($name)) {
+        Storage::change($name, ['object' => $object]);
       }
     }
 
