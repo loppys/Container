@@ -15,12 +15,18 @@ class Builder
   {
     switch ($type) {
       case self::TYPE_COMMON:
-        $object = self::createCommonObject($info['handler'], $info['param'], $info['name']);
-        return $object;
+        if ($object = Storage::get($info['name'] ?: '')['object']) {
+          return $object;
+        } else {
+          return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+        }
         break;
       case self::TYPE_MODULES:
-        $object = self::createCommonObject($info['handler'], $info['param'], $info['name']);
-        return $object;
+        if ($object = Storage::get($info['name'] ?: '')['object']) {
+          return $object;
+        } else {
+          return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+        }
         break;
       case self::TYPE_SYSTEM:
         if ($info['object'] === true) {
@@ -39,10 +45,6 @@ class Builder
 
   public static function createCommonObject(string $class, ?array $param = null, string $name = ''): ?object
   {
-    if ($object = Storage::get($name)['object']) {
-      return $object;
-    }
-
     $object = null;
 
     if (class_exists($class)) {

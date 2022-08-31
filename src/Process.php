@@ -9,6 +9,10 @@ use \ReflectionMethod;
 
 class Process
 {
+  public const GROUP_MODULES = Storage::GROUP_MODULES;
+  public const GROUP_COMMON = Storage::GROUP_COMMON;
+  public const GROUP_SYSTEM = Storage::GROUP_SYSTEM;
+
   public static function callModule(
     string $name,
     array $param = [],
@@ -166,5 +170,10 @@ class Process
     ];
 
     Storage::add($name, Storage::GROUP_MODULES, $data);
+  }
+
+  public static function add(string $name, string $group, $data): void
+  {
+    Storage::add($name, $group, $data);
   }
 }
