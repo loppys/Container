@@ -174,6 +174,15 @@ class Process
 
   public static function __callStatic($name, $arguments)
   {
-    (new ReflectionMethod(Storage::class, $name))->invoke(null, ...$arguments);
+    $class = new ReflectionClass(Storage::class);
+    $method = $class->getMethod($name);
+
+    if ($method->getReturnType()->getName() === 'void') {
+      $method->invoke(null, ...$arguments);
+
+      return;
+    }
+
+    return $method->invoke(null, ...$arguments);
   }
 }
