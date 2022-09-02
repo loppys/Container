@@ -38,7 +38,7 @@ class Builder
         break;
 
       default:
-        return null;
+        return self::createCommonObject($info['handler'], $info['param'], $info['name']);
         break;
     }
   }

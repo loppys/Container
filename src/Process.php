@@ -12,6 +12,7 @@ class Process
   public const GROUP_MODULES = Storage::GROUP_MODULES;
   public const GROUP_COMMON = Storage::GROUP_COMMON;
   public const GROUP_SYSTEM = Storage::GROUP_SYSTEM;
+  public const GROUP_COMPONENT = Storage::GROUP_COMPONENT;
 
   public static function callModule(
     string $name,
@@ -31,7 +32,7 @@ class Process
 
     $rc = self::getConstructor($info['handler']);
 
-    if (!empty($rc)) {;
+    if (!empty($rc)) {
       $params = self::getParameters($rc->class);
     }
 
@@ -58,7 +59,7 @@ class Process
             if ($params = self::getParameters($rc->class)) {
               foreach ($params as $key => $value) {
                 if (empty($value->getType())) {
-                  $info['param'][] = Builder::createCommonObject($class);
+                  $info['param'][] = self::getComponent($class);
                   continue;
                 }
 
@@ -82,7 +83,7 @@ class Process
               }
             }
           } else {
-            $info['param'][] = Builder::createCommonObject($class);
+            $info['param'][] = self::getComponent($class);
           }
         }
       }
@@ -170,6 +171,59 @@ class Process
     ];
 
     Storage::add($name, Storage::GROUP_MODULES, $data);
+  }
+
+  public static function getComponent(string $name): ?object
+  {
+    Storage::add(
+      $name,
+      Storage::GROUP_COMPONENT,
+      [
+        'name' => $name,
+        'handler' => $name
+      ]
+    );
+
+    $params = [];
+    $info = Storage::get($name);
+
+    if ($object = $info['object']) {
+      return $object;
+    }
+
+    if (empty($info['handler']) && !class_exists($info['handler'])) {
+      return null;
+    }
+
+    $rc = self::getConstructor($info['handler']);
+
+    if (!empty($rc)) {
+      $params = self::getParameters($rc->class);
+    }
+
+    if (count($params) > 0) {
+      foreach ($params as $key => $value) {
+        if (empty($value->getType())) {
+          continue;
+        }
+
+        $class = $value->getType()->getName();
+
+        if (!class_exists($class)) {
+          continue;
+        }
+
+        $info['param'][] = self::getComponent($class);
+      }
+
+      Storage::change($info['name'], ['param' => $info['param']]);
+    }
+
+    if ($object = $info['object']) {
+      return $object;
+    }
+
+    return Builder::create($info);
   }
 
   public static function __callStatic($name, $arguments)

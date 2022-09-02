@@ -7,6 +7,7 @@ class Storage
   public const GROUP_MODULES = 'modules';
   public const GROUP_COMMON = 'common';
   public const GROUP_SYSTEM = 'system';
+  public const GROUP_COMPONENT = 'component';
 
   private static $data = [];
   private static $infoData = [];
