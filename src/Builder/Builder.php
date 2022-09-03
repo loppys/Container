@@ -3,7 +3,6 @@
 namespace Loader\Builder;
 
 use Loader\Builder\Storage;
-use Loader\Process as Loader;
 
 class Builder
 {
