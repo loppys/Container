@@ -53,38 +53,7 @@ class Process
         if (Storage::has($moduleName)) {
           $info['param'][] = self::callModule($moduleName);
         } else {
-          $rc = self::getConstructor($class);
-
-          if (!empty($rc)) {
-            if ($params = self::getParameters($rc->class)) {
-              foreach ($params as $key => $value) {
-                if (empty($value->getType())) {
-                  $info['param'][] = self::getComponent($class);
-                  continue;
-                }
-
-                $class = $value->getType()->getName();
-
-                if (!class_exists($class)) {
-                  continue;
-                }
-
-                $name = (new ReflectionClass($class))->getShortName();
-
-                if (!Storage::has($name)) {
-                  self::addModule(
-                    $name,
-                    Storage::GROUP_COMMON,
-                    $class
-                  );
-                }
-
-                $info['param'][] = self::callModule($name);
-              }
-            }
-          } else {
-            $info['param'][] = self::getComponent($class);
-          }
+          $info['param'][] = self::getComponent($class);
         }
       }
 
@@ -175,17 +144,24 @@ class Process
 
   public static function getComponent(string $name): ?object
   {
-    Storage::add(
-      $name,
-      Storage::GROUP_COMPONENT,
-      [
-        'name' => $name,
-        'handler' => $name
-      ]
-    );
+    if (class_exists($name)) {
+      $tmpName = (new \ReflectionClass($name))->getShortName();
+    }
+
+    if (!Storage::has($tmpName ?: $name)) {
+      Storage::add(
+        $tmpName ?: $name,
+        Storage::GROUP_COMPONENT,
+        [
+          'name' => $tmpName ?: $name,
+          'handler' => $name
+        ]
+      );
+    }
 
     $params = [];
-    $info = Storage::get($name);
+
+    $info = Storage::get($tmpName ?: $name);
 
     if ($object = $info['object']) {
       return $object;

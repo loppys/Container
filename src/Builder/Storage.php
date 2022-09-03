@@ -86,4 +86,9 @@ class Storage
   {
     return self::$data[$group] ?: [];
   }
+
+  public static function getData(): array
+  {
+    return self::$data;
+  }
 }
