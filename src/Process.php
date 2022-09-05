@@ -26,7 +26,7 @@ class Process
 
     $info = Storage::get($name);
 
-    if (empty($info['handler']) && !class_exists($info['handler'])) {
+    if (empty($info['handler']) || !class_exists($info['handler'])) {
       return null;
     }
 
@@ -88,11 +88,7 @@ class Process
       $info['group'] = $group;
     }
 
-    if (self::issetGroup($info['group'])) {
-      return Builder::create($info, $info['group']);
-    }
-
-    return null;
+    return Builder::create($info, $info['group']);
   }
 
   public static function getConstructor(string $class = ''): ?ReflectionMethod
@@ -167,7 +163,7 @@ class Process
       return $object;
     }
 
-    if (empty($info['handler']) && !class_exists($info['handler'])) {
+    if (empty($info['handler']) || !class_exists($info['handler'])) {
       return null;
     }
 
@@ -193,6 +189,10 @@ class Process
       }
 
       Storage::change($info['name'], ['param' => $info['param']]);
+    }
+
+    if ($object = $info['object']) {
+      return $object;
     }
 
     return Builder::create($info);
