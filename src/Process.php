@@ -195,10 +195,6 @@ class Process
       Storage::change($info['name'], ['param' => $info['param']]);
     }
 
-    if ($object = $info['object']) {
-      return $object;
-    }
-
     return Builder::create($info);
   }
 
