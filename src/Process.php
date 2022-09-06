@@ -30,6 +30,20 @@ class Process
       return null;
     }
 
+    if (mb_stripos($info['handler'], 'Vengine') !== false) {
+      $local = str_replace('Vengine', 'Local', $info['handler']);
+    } else {
+      $local = 'Local\\' . $info['handler'];
+    }
+
+    if (class_exists($local)) {
+      Storage::change($info['name'], [
+        'handler' => $local
+      ]);
+
+      $info['handler'] = $local;
+    }
+
     $rc = self::getConstructor($info['handler']);
 
     if (!empty($rc)) {
@@ -109,17 +123,6 @@ class Process
     return (new ReflectionMethod($class, '__construct'))->getParameters();
   }
 
-  public static function issetGroup(string $name): bool
-  {
-    $groups = [
-      Storage::GROUP_COMMON,
-      Storage::GROUP_SYSTEM,
-      Storage::GROUP_MODULES,
-    ];
-
-    return in_array($name, $groups);
-  }
-
   public static function addModule(
     string $name,
     string $group,
@@ -140,6 +143,16 @@ class Process
 
   public static function getComponent(string $name): ?object
   {
+    if (mb_stripos($name, 'Vengine') !== false) {
+      $local = str_replace('Vengine', 'Local', $name);
+    } else {
+      $local = 'Local\\' . $name;
+    }
+
+    if (class_exists($local)) {
+      return self::getComponent($local);
+    }
+
     if (class_exists($name)) {
       $tmpName = (new \ReflectionClass($name))->getShortName();
     }
