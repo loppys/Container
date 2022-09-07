@@ -91,4 +91,24 @@ class Storage
   {
     return self::$data;
   }
+
+  public static function getPackage($name): ?object
+  {
+    $result = null;
+
+    if ($package = self::get($name)['package']) {
+      if (is_string($package) && class_exists($package)) {
+        $result = \Loader\Process::getComponent($package);
+
+        self::change(
+          $name,
+          [
+            'package' => $result
+          ]
+        );
+      }
+    }
+
+    return $result;
+  }
 }

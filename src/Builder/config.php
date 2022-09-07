@@ -2,11 +2,9 @@
 
 return [
   [
-    'name' => '_startup',
+    'name' => 'startup',
     'handler' => \Vengine\Startup::class,
-    'group' => 'system',
-    'package' => false,
-    'create' => true,
+    'group' => \Loader\Builder\Storage::GROUP_SYSTEM
   ],
   [
     'name' => 'LocalPage',
