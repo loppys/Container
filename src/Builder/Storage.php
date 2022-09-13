@@ -96,7 +96,7 @@ class Storage
     $group = self::getGroupByName($name);
 
     if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader:data');
+      self::$cacheObject = new Cache('Loader.cache.data');
     }
 
     if (self::$cacheObject->initCacheData()) {
@@ -122,7 +122,7 @@ class Storage
   public static function updateCache(): void
   {
     if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader:data');
+      self::$cacheObject = new Cache('Loader.cache.data');
     }
 
     $data = self::$data;
@@ -137,7 +137,7 @@ class Storage
   public static function getCacheData()
   {
     if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader:data');
+      self::$cacheObject = new Cache('Loader.cache.data');
     }
 
     $cache = self::$cacheObject;
