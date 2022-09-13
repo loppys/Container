@@ -2,14 +2,17 @@
 
 return [
   [
-    'name' => '_startup',
+    'name' => 'startup',
     'handler' => \Vengine\Startup::class,
-    'group' => 'system',
-    'package' => false,
-    'create' => true,
+    'group' => \Loader\Builder\Storage::GROUP_SYSTEM
   ],
   [
     'name' => 'LocalPage',
     'handler' => \Vengine\Controllers\Page\LocalPage::class,
+  ],
+  [
+    'name' => 'Adapter',
+    'handler' => \Vengine\Database\Adapter::class,
+    'group' => \Loader\Builder\Storage::GROUP_SYSTEM
   ]
 ];

@@ -3,7 +3,6 @@
 namespace Loader\Builder;
 
 use Loader\Builder\Storage;
-use Loader\Process as Loader;
 
 class Builder
 {
@@ -38,7 +37,7 @@ class Builder
         break;
 
       default:
-        return null;
+        return self::createCommonObject($info['handler'], $info['param'], $info['name']);
         break;
     }
   }

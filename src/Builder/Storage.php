@@ -2,14 +2,19 @@
 
 namespace Loader\Builder;
 
+use Vengine\Modules\Cache\Cache;
+
 class Storage
 {
   public const GROUP_MODULES = 'modules';
   public const GROUP_COMMON = 'common';
   public const GROUP_SYSTEM = 'system';
+  public const GROUP_COMPONENT = 'component';
 
   private static $data = [];
   private static $infoData = [];
+
+  private static $cacheObject;
 
   public static $configIsset = false;
 
@@ -46,13 +51,25 @@ class Storage
       foreach ($property as $key => $value) {
         self::$data[$group][$name][$key] = $value;
       }
+
+      self::updateCache();
     }
   }
 
   public static function add(string $name, string $group, $data): void
   {
+    if (empty(self::$cacheObject)) {
+      self::$cacheObject = new Cache('Loader.cache.data');
+    }
+
     self::$infoData[$name] = $group;
     self::$data[$group][$name] = $data;
+
+    if ($cache = self::getCacheData()) {
+      if (empty($cache[$group][$name])) {
+        self::updateCache();
+      }
+    }
   }
 
   public static function getGroupByName($name): string
@@ -78,11 +95,109 @@ class Storage
   {
     $group = self::getGroupByName($name);
 
+    if (empty(self::$cacheObject)) {
+      self::$cacheObject = new Cache('Loader:data');
+    }
+
+    if (self::$cacheObject->initCacheData()) {
+      $cacheData = self::getCacheData();
+    } else {
+      self::updateCache();
+
+      $cacheData = self::getCacheData();
+    }
+
+    if ($data = $cacheData[$group][$name]) {
+      return $data;
+    }
+
     return self::$data[$group][$name] ?: [];
+  }
+
+  public static function set($data): void
+  {
+    self::$data = $data;
+  }
+
+  public static function updateCache(): void
+  {
+    if (empty(self::$cacheObject)) {
+      self::$cacheObject = new Cache('Loader:data');
+    }
+
+    $data = self::$data;
+
+    foreach ($data as $key => $value) {
+      unset($data[$key][self::GROUP_SYSTEM]);
+    }
+
+    self::$cacheObject->updateCacheData($data);
+  }
+
+  public static function getCacheData()
+  {
+    if (empty(self::$cacheObject)) {
+      self::$cacheObject = new Cache('Loader:data');
+    }
+
+    $cache = self::$cacheObject;
+
+    if ($cache->initCacheData()) {
+      $data = $cache->getCacheData();
+
+      if (array_diff((array)$data, self::$data)) {
+        $data = self::$data;
+
+        foreach ($data as $key => $value) {
+          unset($data[$key][self::GROUP_SYSTEM]);
+        }
+
+        $cache->updateCacheData($data);
+      }
+
+      return $cache->getCacheData();
+    } else {
+      $data = self::$data;
+
+      foreach ($data as $key => $value) {
+        unset($data[$key][self::GROUP_SYSTEM]);
+      }
+
+      if ($cache->updateCacheData($data)) {
+        return $cache->getCacheData();
+      }
+    }
+
+    return [];
   }
 
   public static function getList(string $group): array
   {
     return self::$data[$group] ?: [];
+  }
+
+  public static function getData(): array
+  {
+    return self::$data;
+  }
+
+  public static function getPackage($name): ?object
+  {
+    $result = null;
+
+    if ($package = self::get($name)['package']) {
+      if (is_string($package) && class_exists($package)) {
+        $result = \Loader\Process::getComponent($package);
+
+        self::change(
+          $name,
+          [
+            'package' => $result
+          ]
+        );
+      }
+    }
+
+    return $result;
   }
 }
