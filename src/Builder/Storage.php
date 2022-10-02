@@ -2,8 +2,6 @@
 
 namespace Loader\Builder;
 
-use Vengine\Modules\Cache\Cache;
-
 class Storage
 {
   public const GROUP_MODULES = 'modules';
@@ -51,25 +49,13 @@ class Storage
       foreach ($property as $key => $value) {
         self::$data[$group][$name][$key] = $value;
       }
-
-      self::updateCache();
     }
   }
 
   public static function add(string $name, string $group, $data): void
   {
-    if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader.cache.data');
-    }
-
     self::$infoData[$name] = $group;
     self::$data[$group][$name] = $data;
-
-    if ($cache = self::getCacheData()) {
-      if (empty($cache[$group][$name])) {
-        self::updateCache();
-      }
-    }
   }
 
   public static function getGroupByName($name): string
@@ -95,80 +81,12 @@ class Storage
   {
     $group = self::getGroupByName($name);
 
-    if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader.cache.data');
-    }
-
-    if (self::$cacheObject->initCacheData()) {
-      $cacheData = self::getCacheData();
-    } else {
-      self::updateCache();
-
-      $cacheData = self::getCacheData();
-    }
-
-    if ($data = $cacheData[$group][$name]) {
-      return $data;
-    }
-
     return self::$data[$group][$name] ?: [];
   }
 
   public static function set($data): void
   {
     self::$data = $data;
-  }
-
-  public static function updateCache(): void
-  {
-    if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader.cache.data');
-    }
-
-    $data = self::$data;
-
-    foreach ($data as $key => $value) {
-      unset($data[$key][self::GROUP_SYSTEM]);
-    }
-
-    self::$cacheObject->updateCacheData($data);
-  }
-
-  public static function getCacheData()
-  {
-    if (empty(self::$cacheObject)) {
-      self::$cacheObject = new Cache('Loader.cache.data');
-    }
-
-    $cache = self::$cacheObject;
-
-    if ($cache->initCacheData()) {
-      $data = $cache->getCacheData();
-
-      if (array_diff((array)$data, self::$data)) {
-        $data = self::$data;
-
-        foreach ($data as $key => $value) {
-          unset($data[$key][self::GROUP_SYSTEM]);
-        }
-
-        $cache->updateCacheData($data);
-      }
-
-      return $cache->getCacheData();
-    } else {
-      $data = self::$data;
-
-      foreach ($data as $key => $value) {
-        unset($data[$key][self::GROUP_SYSTEM]);
-      }
-
-      if ($cache->updateCacheData($data)) {
-        return $cache->getCacheData();
-      }
-    }
-
-    return [];
   }
 
   public static function getList(string $group): array

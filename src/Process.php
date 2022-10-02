@@ -26,7 +26,6 @@ class Process
 
     $info = Storage::get($name);
 
-
     if (($object = $info['object']) && $info['group'] !== self::GROUP_SYSTEM) {
       return $object;
     }
