@@ -1,18 +1,23 @@
 <?php
 
+use Vengine\Startup;
+use Vengine\System\Components\Database\Adapter;
+use Loader\Builder\Storage;
+use Vengine\Controllers\Page\LocalPage;
+
 return [
   [
     'name' => 'startup',
-    'handler' => \Vengine\Startup::class,
-    'group' => \Loader\Builder\Storage::GROUP_SYSTEM
+    'handler' => [Startup::class, 'init'],
+    'group' => Storage::GROUP_SYSTEM
   ],
   [
     'name' => 'LocalPage',
-    'handler' => \Vengine\Controllers\Page\LocalPage::class,
+    'handler' => LocalPage::class,
   ],
   [
     'name' => 'Adapter',
-    'handler' => \Vengine\Database\Adapter::class,
-    'group' => \Loader\Builder\Storage::GROUP_SYSTEM
+    'handler' => [Adapter::class, 'connect'],
+    'group' => Storage::GROUP_SYSTEM
   ]
 ];

@@ -25,7 +25,8 @@ class Storage
         $data = [
           'name' => $value['name'],
           'group' => $value['group'] ?: self::GROUP_COMMON,
-          'handler' => $value['handler'],
+          'handler' => !is_array($value['handler']) ? $value['handler'] : $value['handler'][0],
+          'method' => !is_array($value['handler']) ? '' : $value['handler'][1],
           'param' => $value['param'],
           'path' => $value['path'],
           'package' => $value['package'],

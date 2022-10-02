@@ -3,6 +3,9 @@
 namespace Loader\Builder;
 
 use Loader\Builder\Storage;
+use \ReflectionClass;
+use \ReflectionMethod;
+use Loader\Process;
 
 class Builder
 {
@@ -17,14 +20,14 @@ class Builder
         if ($object = Storage::get($info['name'] ?: '')['object']) {
           return $object;
         } else {
-          return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+          return self::createCommonObject($info['handler'], $info['param'], $info['name'], $info['method']);
         }
         break;
       case self::TYPE_MODULES:
         if ($object = Storage::get($info['name'] ?: '')['object']) {
           return $object;
         } else {
-          return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+          return self::createCommonObject($info['handler'], $info['param'], $info['name'], $info['method']);
         }
         break;
       case self::TYPE_SYSTEM:
@@ -32,17 +35,17 @@ class Builder
           return null;
         }
 
-        $object = self::createCommonObject($info['handler'], $info['param'], $info['name']);
+        $object = self::createCommonObject($info['handler'], $info['param'], $info['name'], $info['method']);
         return $object;
         break;
 
       default:
-        return self::createCommonObject($info['handler'], $info['param'], $info['name']);
+        return self::createCommonObject($info['handler'], $info['param'], $info['name'], $info['method']);
         break;
     }
   }
 
-  public static function createCommonObject(string $class, ?array $param = null, string $name = ''): ?object
+  public static function createCommonObject(string $class, ?array $param = null, string $name = '', ?string $method = ''): ?object
   {
     $object = null;
 
@@ -51,6 +54,18 @@ class Builder
         $object = new $class(...$param);
       } else {
         $object = new $class();
+      }
+
+      if ($defaultMethod = $object->defaultMethod) {
+        $method = $defaultMethod;
+      }
+
+      if ($classSettings = $object->classSettings) {
+        $object->classSettings = Process::getComponent($classSettings);
+      }
+
+      if ($object && ($method && method_exists($object, $method))) {
+        call_user_func_array([$object, $method], []);
       }
 
       if (!empty($name)) {

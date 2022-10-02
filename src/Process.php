@@ -30,6 +30,14 @@ class Process
       return $object;
     }
 
+    if (is_array($info['handler'])) {
+      $info['handler'] = $info['handler'][0];
+
+      if (empty($info['method'])) {
+        $info['method'] = $info['handler'][1];
+      }
+    }
+
     if (empty($info['handler']) || !class_exists($info['handler'])) {
       return null;
     }
@@ -145,7 +153,7 @@ class Process
     Storage::add($name, Storage::GROUP_MODULES, $data);
   }
 
-  public static function getComponent(string $name): ?object
+  public static function getComponent(string $name, string $method = ''): ?object
   {
     if (mb_stripos($name, 'Vengine') !== false) {
       $local = str_replace('Vengine', 'Local', $name);
@@ -167,7 +175,8 @@ class Process
         Storage::GROUP_COMPONENT,
         [
           'name' => $tmpName ?: $name,
-          'handler' => $name
+          'handler' => $name,
+          'method' => $method
         ]
       );
     }
@@ -175,6 +184,10 @@ class Process
     $params = [];
 
     $info = Storage::get($tmpName ?: $name);
+
+    if (!empty($method)) {
+      $info['method'] = $method;
+    }
 
     if ($object = $info['object']) {
       return $object;
