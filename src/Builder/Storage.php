@@ -21,9 +21,15 @@ class Storage
 
   public static function setDefault(): void
   {
-    $structure = Process::getComponent(Structure::class)->setDefaultStructure();
+    $structure = Process::getComponent(Structure::class);
 
-    $newConfig = require $structure->config . 'app.config.php';
+    if (!empty($structure)) {
+      $structure->setDefaultStructure();
+
+      if (file_exists($structure->config . 'app.config.php')) {
+        $newConfig = require $structure->config . 'app.config.php';
+      }
+    }
 
     $oldConfig = require_once 'config.php';
 
