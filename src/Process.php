@@ -4,6 +4,7 @@ namespace Loader;
 
 use Loader\Builder\Storage;
 use Loader\Builder\Builder;
+use Loader\System\Config;
 use \ReflectionClass;
 use \ReflectionMethod;
 
@@ -115,6 +116,16 @@ class Process
     }
 
     return Builder::create($info, $info['group']);
+  }
+
+  public static function getConfig(): Config
+  {
+    return self::getComponent(Config::class);
+  }
+
+  public static function configCollect(array $config): void
+  {
+    self::getConfig()->configCollect($config);
   }
 
   public static function getConstructor(string $class = ''): ?ReflectionMethod

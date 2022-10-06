@@ -2,6 +2,9 @@
 
 namespace Loader\Builder;
 
+use Loader\Process;
+use Vengine\System\Settings\Structure;
+
 class Storage
 {
   public const GROUP_MODULES = 'modules';
@@ -18,28 +21,47 @@ class Storage
 
   public static function setDefault(): void
   {
-    $config = require_once 'config.php';
+    $structure = Process::getComponent(Structure::class)->setDefaultStructure();
 
-    if (is_array($config)) {
-      foreach ($config as $key => $value) {
+    $newConfig = require $structure->config . 'app.config.php';
+
+    $oldConfig = require_once 'config.php';
+
+    if (empty($newConfig)) {
+      if (is_array($oldConfig)) {
+        foreach ($oldConfig as $key => $value) {
+          $data = [
+            'name' => $value['name'],
+            'group' => $value['group'] ?: self::GROUP_COMMON,
+            'handler' => !is_array($value['handler']) ? $value['handler'] : $value['handler'][0],
+            'method' => !is_array($value['handler']) ? '' : $value['handler'][1],
+            'param' => $value['param'],
+            'path' => $value['path'],
+            'package' => $value['package'],
+            'create' => $value['create'],
+            'call' => $value['call'],
+            'object' => null
+          ];
+
+          self::add($value['name'], $value['group'] ?: self::GROUP_COMMON, $data);
+        }
+      }
+    } else {
+      Process::configCollect($newConfig);
+
+      foreach (Process::getConfig()->getConfigData() as $name => $component) {
         $data = [
-          'name' => $value['name'],
-          'group' => $value['group'] ?: self::GROUP_COMMON,
-          'handler' => !is_array($value['handler']) ? $value['handler'] : $value['handler'][0],
-          'method' => !is_array($value['handler']) ? '' : $value['handler'][1],
-          'param' => $value['param'],
-          'path' => $value['path'],
-          'package' => $value['package'],
-          'create' => $value['create'],
-          'call' => $value['call'],
-          'object' => null
+          'name' => $name,
+          'group' => self::GROUP_SYSTEM,
+          'handler' => $component['class'],
+          'method' => $component['method']
         ];
 
-        self::add($value['name'], $value['group'] ?: self::GROUP_COMMON, $data);
+        self::add($name, self::GROUP_SYSTEM, $data);
       }
-
-      self::$configIsset = true;
     }
+
+    self::$configIsset = true;
   }
 
   public static function change(string $name, array $property): void
