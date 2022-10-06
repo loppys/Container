@@ -50,7 +50,7 @@ class Config
     $name = explode('\\', $oldClass);
     $name = array_pop($name);
 
-    $this->data[$oldName] = [
+    $this->data[$name] = [
       'class' => $newClass,
       'method' => $method
     ];
