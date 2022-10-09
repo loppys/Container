@@ -26,8 +26,16 @@ class Storage
     if (!empty($structure)) {
       $structure->setDefaultStructure();
 
-      if (file_exists($structure->config . 'app.config.php')) {
-        $newConfig = require $structure->config . 'app.config.php';
+      $file = $structure->config . 'app.config.php';
+
+      if (file_exists($file)) {
+        $newConfig = require $file;
+      }
+    } else {
+      $file = $_SERVER['DOCUMENT_ROOT'] . '/config/app.config.php';
+
+      if (file_exists($file)) {
+        $newConfig = require $file;
       }
     }
 
