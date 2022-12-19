@@ -1,6 +1,6 @@
 {
   "name": "vengine/loader",
-  "description": "vengine loader (system)",
+  "description": "vengine loader",
   "type": "library",
   "autoload": {
     "psr-4": {
