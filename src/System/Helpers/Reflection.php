@@ -85,7 +85,7 @@ class Reflection
         $result = null;
 
         if (method_exists($class, '__construct')) {
-            $result = (new ReflectionClass($class))->getConstructor();
+            $result = static::get($class)->getConstructor();
         }
 
         return $result;
