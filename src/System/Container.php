@@ -10,18 +10,27 @@ use Loader\System\Interfaces\ContainerInterface;
 use Loader\System\Interfaces\ContainerInjection;
 use Loader\System\Interfaces\PackageInterface;
 use Loader\System\Interfaces\StorageInterface;
+use Loader\System\Storage\CommonObjectStorage;
 use Loader\System\Storage\DataStorage;
 use ReflectionMethod;
 use ReflectionException;
 
 class Container implements ContainerInterface
 {
+    /**
+     * @var Container
+     */
     protected static $instance;
 
     /**
      * @var StorageInterface
      */
     private $storage;
+
+    /**
+     * @var CommonObjectStorage
+     */
+    private $objectStorage;
 
     /**
      * @var BuilderInterface
@@ -36,6 +45,7 @@ class Container implements ContainerInterface
     public function __construct()
     {
         $this->storage = new DataStorage();
+        $this->objectStorage = new CommonObjectStorage();
         $this->builder = new Builder();
         $this->config = new Config();
 
@@ -68,7 +78,7 @@ class Container implements ContainerInterface
         return $this->builder->build($package);
     }
 
-    public function getComponent(string $name, string $method, array $methodArguments): ContainerInjection
+    public function getComponent(string $name, string $method = '', array $methodArguments = []): ContainerInjection
     {
         $package = $this->getPackage($name);
 
@@ -79,6 +89,10 @@ class Container implements ContainerInterface
         $component = $package->getObject();
 
         if ($component instanceof ContainerInjection) {
+            if (!empty($method)) {
+                $this->builder->invoke($component, $method, $methodArguments);
+            }
+
             return $component;
         }
 
@@ -185,5 +199,10 @@ class Container implements ContainerInterface
     public function getConfig(): Config
     {
         return $this->config;
+    }
+
+    public function getObjectStorage(): CommonObjectStorage
+    {
+        return $this->objectStorage;
     }
 }

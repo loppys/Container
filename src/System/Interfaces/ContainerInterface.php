@@ -3,6 +3,7 @@
 namespace Loader\System\Interfaces;
 
 use Loader\System\Config;
+use Loader\System\Storage\CommonObjectStorage;
 use ReflectionMethod;
 
 interface ContainerInterface
@@ -37,4 +38,6 @@ interface ContainerInterface
     public function getBuilder(): BuilderInterface;
 
     public function getConfig(): Config;
+
+    public function getObjectStorage(): CommonObjectStorage;
 }
