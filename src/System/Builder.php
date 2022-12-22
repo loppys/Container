@@ -133,10 +133,6 @@ class Builder implements BuilderInterface
 
             $defaultMethod = $package->getDefaultMethod();
 
-            if ($object->getDefaultMethod()) {
-                $defaultMethod = $object->getDefaultMethod();
-            }
-
             if ($defaultMethod) {
                 $package->setDefaultMethod($defaultMethod);
 
