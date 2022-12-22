@@ -26,4 +26,9 @@ class CommonObjectStorage extends DataStorage
     {
         return self::$objectList;
     }
+
+    public function has(string $name): bool
+    {
+        return !empty($this->getObject($name));
+    }
 }
