@@ -74,11 +74,11 @@ class Container implements ContainerInterface
 
         $package = $this->getPackage($name);
 
-        if ($package->hasObject()) {
-            $component = $package->getObject();
-        } else {
+        if (!$package->hasObject()) {
             throw new ContainerException("Component {$name} not created");
         }
+
+        $component = $package->getObject();
 
         if ($component instanceof ContainerInjection) {
             return $component;
