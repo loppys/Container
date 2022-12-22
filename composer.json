@@ -1,18 +1,15 @@
 {
-    "name": "vengine/loader",
-    "description": "vengine loader (system)",
-    "type": "library",
-    "autoload": {
-        "psr-4": {
-            "Loader\\": "src/"
-        }
-    },
-    "license": "MIT",
-    "conflict": {
-	"vengine/core": "<1.0.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^9.5"
-    },
-    "minimum-stability": "dev"
+  "name": "vengine/loader",
+  "description": "vengine loader",
+  "type": "library",
+  "autoload": {
+    "psr-4": {
+      "Loader\\": "src/"
+    }
+  },
+  "license": "MIT",
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  },
+  "minimum-stability": "dev"
 }
