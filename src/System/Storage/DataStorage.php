@@ -11,7 +11,7 @@ class DataStorage implements StorageInterface
 
     public function add(string $name, $value): StorageInterface
     {
-        if (!array_key_exists($name, $this->data)) {
+        if (!array_key_exists($name, static::$data)) {
             static::$data[$name] = $value;
         }
 
