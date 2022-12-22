@@ -70,8 +70,6 @@ class Container implements ContainerInterface
 
     public function getComponent(string $name, string $method, array $methodArguments): ContainerInjection
     {
-        $component = null;
-
         $package = $this->getPackage($name);
 
         if (!$package->hasObject()) {
