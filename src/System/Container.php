@@ -27,7 +27,10 @@ class Container implements ContainerInterface
      * @var BuilderInterface
      */
     private $builder;
-
+    
+    /**
+     * @var Config
+     */
     private $config;
 
     public function __construct()
