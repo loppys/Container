@@ -144,7 +144,7 @@ class Container implements ContainerInterface
             return $this->storage->get($name);
         }
 
-        $package = new Package($name);
+        $package = $this->newPackage($name);
 
         $this->storage->set($name, $package);
 
