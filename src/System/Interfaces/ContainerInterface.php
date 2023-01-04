@@ -33,4 +33,6 @@ interface ContainerInterface
     public function getConfig(): Config;
 
     public function getObjectStorage(): CommonObjectStorage;
+
+    public function packageCollect(array $packageList): bool;
 }

@@ -36,7 +36,7 @@ class Container implements ContainerInterface
      * @var BuilderInterface
      */
     private $builder;
-    
+
     /**
      * @var Config
      */
@@ -177,6 +177,46 @@ class Container implements ContainerInterface
         $this->storage->set($name, $package);
 
         return $package;
+    }
+
+    /*
+     * name => string
+     * className => string
+     * arguments => array
+     * defaultMethod => string
+     * defaultMethodArguments => array
+     */
+    public function packageCollect(array $packageList): bool
+    {
+        if (empty($packageList)) {
+            return false;
+        }
+
+        foreach ($packageList as $package) {
+            if (empty($package['name']) || !is_array($package)) {
+                continue;
+            }
+
+            $tempPackage = $this->getPackage($package['name']);
+
+            if (is_string($package['className'])) {
+                $tempPackage->setClassName($package['className']);
+            }
+
+            if (is_array($package['arguments'])) {
+                $tempPackage->setArguments($package['arguments']);
+            }
+
+            if (is_string($package['defaultMethod'])) {
+                $tempPackage->setDefaultMethod($package['defaultMethod']);
+            }
+
+            if (is_array($package['defaultMethodArguments'])) {
+                $tempPackage->setDefaultMethodArguments($package['defaultMethodArguments']);
+            }
+        }
+
+        return true;
     }
 
     public function setStorage(StorageInterface $storage): ContainerInterface

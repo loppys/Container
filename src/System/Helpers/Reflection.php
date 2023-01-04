@@ -13,12 +13,12 @@ class Reflection
     protected static $reflections = [];
 
     /**
-     * @param $class
-     * @return ReflectionClass
+     * @param object|string $class
+     * @return ReflectionClass|null
      *
      * @throws ReflectionException
      */
-    public static function get($class): ReflectionClass
+    public static function get($class): ?ReflectionClass
     {
         if (is_object($class)) {
             $class = get_class($class);
@@ -28,7 +28,7 @@ class Reflection
             throw new InvalidArgumentException('Class must be a string or object');
         }
 
-        $lowerClass = strtolower($class);
+        $lowerClass = strtolower(static::getClassShortName($class));
         if (!static::has($class)) {
             static::set(new ReflectionClass($class), $lowerClass);
         }

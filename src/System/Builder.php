@@ -14,46 +14,6 @@ use ReflectionException;
 
 class Builder implements BuilderInterface
 {
-    /*
-     * name => string
-     * className => string
-     * arguments => array
-     * defaultMethod => string
-     * defaultMethodArguments => array
-     */
-    public function packageCollect(array $packageList): bool
-    {
-        if (empty($packageList)) {
-            return false;
-        }
-
-        foreach ($packageList as $package) {
-            if (empty($package['name']) || !is_array($package)) {
-                continue;
-            }
-
-            $tempPackage = $this->getContainer()->getPackage($package['name']);
-
-            if (is_string($package['className'])) {
-                $tempPackage->setClassName($package['className']);
-            }
-
-            if (is_array($package['arguments'])) {
-                $tempPackage->setArguments($package['arguments']);
-            }
-
-            if (is_string($package['defaultMethod'])) {
-                $tempPackage->setDefaultMethod($package['defaultMethod']);
-            }
-
-            if (is_array($package['defaultMethodArguments'])) {
-                $tempPackage->setDefaultMethodArguments($package['defaultMethodArguments']);
-            }
-        }
-
-        return true;
-    }
-
     /**
      * @param PackageInterface $package
      * @param bool $new
@@ -152,11 +112,16 @@ class Builder implements BuilderInterface
     public function createObject(string $class, array $arguments = [])
     {
         $lowerName = strtolower(Reflection::getClassShortName($class));
+        $info = Reflection::get($class);
+
+        if ($info !== null) {
+            $class = $info->getName();
+        }
 
         $objectStorage = $this->getContainer()->getObjectStorage();
 
-        if ($objectStorage->has($lowerName)) {
-            return $objectStorage->getObject($lowerName);
+        if ($objectStorage->has($lowerName ?: $class)) {
+            return $objectStorage->getObject($lowerName ?: $class);
         }
 
         if (!Reflection::classExist($class)) {

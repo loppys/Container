@@ -4,8 +4,6 @@ namespace Loader\System\Interfaces;
 
 interface BuilderInterface
 {
-    public function packageCollect(array $packageList): bool;
-
     public function build(PackageInterface $package, bool $new): ContainerInjection;
 
     public function getNew(string $name): ContainerInjection;
