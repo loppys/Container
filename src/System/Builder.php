@@ -155,6 +155,12 @@ class Builder implements BuilderInterface
     {
         $object = null;
 
+        $objectStorage = $this->getContainer()->getObjectStorage();
+
+        if ($objectStorage->has($class)) {
+            return $objectStorage->getObject($class);
+        }
+
         if (!Reflection::classExist($class)) {
             throw new ClassNotFoundException($class);
         }
@@ -164,6 +170,8 @@ class Builder implements BuilderInterface
         } else {
             $object = new $class;
         }
+
+        $objectStorage->add($class, $object);
 
         return $object;
     }
