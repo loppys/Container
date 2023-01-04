@@ -8,6 +8,12 @@ class CommonObjectStorage extends DataStorage
 {
     protected static $objectList = [];
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return StorageInterface
+     */
     public function add(string $name, $value): StorageInterface
     {
         if (!array_key_exists($name, static::$objectList)) {
@@ -22,9 +28,18 @@ class CommonObjectStorage extends DataStorage
         return static::$objectList[$name] ?? null;
     }
 
-    public static function getObjectList(): array
+    public function getObjectList(): array
     {
         return self::$objectList;
+    }
+
+    public function delete(string $name): StorageInterface
+    {
+        if (array_key_exists($name, static::$objectList)) {
+            unset(static::$objectList[$name]);
+        }
+
+        return $this;
     }
 
     public function has(string $name): bool

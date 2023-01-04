@@ -60,12 +60,7 @@ class Reflection
         }
     }
 
-    /**
-     * @param object $object
-     *
-     * @return array
-     */
-    public static function getObjectVars($object): array
+    public static function getObjectVars(object $object): array
     {
         return get_object_vars($object);
     }

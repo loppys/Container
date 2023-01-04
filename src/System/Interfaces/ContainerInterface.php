@@ -10,14 +10,7 @@ interface ContainerInterface
 {
     public function build(PackageInterface $package): ContainerInjection;
 
-    /**
-     * @param string $name
-     * @param string $method
-     * @param array $methodArguments
-     *
-     * @return mixed|null
-     */
-    public function getComponent(string $name, string $method, array $methodArguments);
+    public function getComponent(string $name, string $method, array $methodArguments): ContainerInjection;
 
     public function getConstructor(string $class): ?ReflectionMethod;
 

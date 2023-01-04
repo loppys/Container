@@ -100,6 +100,17 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param string $name
+     * @return ContainerInjection
+     *
+     * @throws ReflectionException
+     */
+    public function getNew(string $name): ContainerInjection
+    {
+        return $this->builder->getNew($name);
+    }
+
+    /**
      * @param string $class
      * @param array $arguments
      *

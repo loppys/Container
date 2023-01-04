@@ -45,9 +45,9 @@ class Package implements PackageInterface
 
     public function update(array $data): PackageInterface
     {
-        $propertyList = Reflection::getObjectVars($this);
+        $propertyList = get_object_vars($this);
 
-        foreach ($propertyList as $property) {
+        foreach ($propertyList as $property => $value) {
             if (property_exists($this, $property) && !empty($data[$property])) {
                 $this->{$property} = $data[$property];
             }
@@ -88,34 +88,52 @@ class Package implements PackageInterface
         return $this->object;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): PackageInterface
     {
         $this->name = $name;
+
+        return $this;
     }
 
-    public function setObject(ContainerInjection $object): void
+    public function setObject(ContainerInjection $object): PackageInterface
     {
         $this->object = $object;
+
+        return $this;
     }
 
-    public function setClassName(string $class): void
+    public function setClassName(string $class): PackageInterface
     {
         $this->className = $class;
+
+        return $this;
     }
 
-    public function setArguments(array $arguments): void
+    /**
+     * @param array<mixed> $arguments
+     */
+    public function setArguments(array $arguments): PackageInterface
     {
         $this->arguments = $arguments;
+
+        return $this;
     }
 
-    public function setDefaultMethod(string $method): void
+    public function setDefaultMethod(string $method): PackageInterface
     {
         $this->defaultMethod = $method;
+
+        return $this;
     }
 
-    public function setDefaultMethodArguments(array $arguments): void
+    /**
+     * @param array<mixed> $arguments
+     */
+    public function setDefaultMethodArguments(array $arguments): PackageInterface
     {
         $this->defaultMethodArguments = $arguments;
+
+        return $this;
     }
 
     public function hasObject(): bool
