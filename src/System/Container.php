@@ -114,7 +114,9 @@ class Container implements ContainerInterface
      * @param string $class
      * @param array $arguments
      *
-     * @return object|null
+     * @return object
+     *
+     * @throws ReflectionException
      */
     public function createObject(string $class, array $arguments = [])
     {
