@@ -23,6 +23,11 @@ class Container implements ContainerInterface
     protected static $instance;
 
     /**
+     * @var array
+     */
+    protected $sharedList;
+
+    /**
      * @var StorageInterface
      */
     private $storage;
@@ -59,6 +64,39 @@ class Container implements ContainerInterface
         }
 
         throw new ContainerException('container not init');
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getShared(string $name)
+    {
+        if (!empty($this->sharedList[$name])) {
+            return $this->sharedList[$name];
+        }
+
+        if (Reflection::classExist($name)) {
+            $this->setShared($name, $this->createObject($name));
+
+            return $this->getShared($name);
+        }
+
+        throw new ContainerException("[ {$name} ] not init or not found");
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return ContainerInterface
+     */
+    public function setShared(string $name, $value): ContainerInterface
+    {
+        $this->sharedList[$name] = $value;
+
+        return $this;
     }
 
     /**
