@@ -10,6 +10,7 @@ use Loader\System\Interfaces\BuilderInterface;
 use Loader\System\Interfaces\ContainerInterface;
 use Loader\System\Interfaces\ContainerInjection;
 use Loader\System\Interfaces\PackageInterface;
+use ReflectionParameter;
 use ReflectionException;
 
 class Builder implements BuilderInterface
@@ -111,7 +112,7 @@ class Builder implements BuilderInterface
      */
     public function createObject(string $class, array $arguments = [])
     {
-        $lowerName = strtolower(Reflection::getClassShortName($class));
+        $lowerName = strtolower($class);
         $info = Reflection::get($class);
 
         if ($info !== null) {
@@ -133,6 +134,14 @@ class Builder implements BuilderInterface
         }
 
         $this->createArgument($arguments);
+
+        $arguments = array_filter($arguments, static function($item) {
+            if ($item instanceof ReflectionParameter) {
+                return false;
+            }
+
+            return true;
+        });
 
         if (!empty($arguments)) {
             $object = new $class(...$arguments);
@@ -179,7 +188,12 @@ class Builder implements BuilderInterface
     {
         if (count($arguments) > 0) {
             foreach ($arguments as $key => $argument) {
-                if (is_object($argument) && !method_exists($argument, 'getType')) {
+                if (
+                    (is_object($argument) && !method_exists($argument, 'getType'))
+                    || (!is_object($argument) &&
+                        (is_string($argument) || is_array($argument) || is_int($argument) || is_bool($argument))
+                    )
+                ) {
                     $arguments[$key] = $argument;
 
                     continue;
@@ -191,6 +205,10 @@ class Builder implements BuilderInterface
 
                 $name = Reflection::getClassShortName($argument->getType()->getName());
                 $class = $argument->getType()->getName();
+
+                if (empty($class)) {
+                    continue;
+                }
 
                 if (!Reflection::classExist($class)) {
                     continue;
