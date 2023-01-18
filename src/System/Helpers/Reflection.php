@@ -28,7 +28,7 @@ class Reflection
             throw new InvalidArgumentException('Class must be a string or object');
         }
 
-        $lowerClass = strtolower(static::getClassShortName($class));
+        $lowerClass = strtolower($class);
         if (!static::has($class)) {
             static::set(new ReflectionClass($class), $lowerClass);
         }
