@@ -5,17 +5,22 @@ namespace Loader\System;
 use Loader\System\Exceptions\ClassNotFoundException;
 use Loader\System\Exceptions\ContainerException;
 use Loader\System\Helpers\Reflection;
+use Loader\System\Interfaces\BuilderAdapterInterface;
 use Loader\System\Interfaces\BuilderInterface;
 use Loader\System\Interfaces\ContainerInterface;
 use Loader\System\Interfaces\ContainerInjection;
+use Loader\System\Interfaces\ContainerShareInterface;
+use Loader\System\Interfaces\PackageAdapterInterface;
 use Loader\System\Interfaces\PackageInterface;
+use Loader\System\Interfaces\SingletonInterface;
 use Loader\System\Interfaces\StorageInterface;
 use Loader\System\Storage\CommonObjectStorage;
 use Loader\System\Storage\DataStorage;
+use Loader\System\DTO\Package;
 use ReflectionMethod;
 use ReflectionException;
 
-class Container implements ContainerInterface
+class Container implements ContainerInterface, ContainerShareInterface, BuilderAdapterInterface, PackageAdapterInterface, SingletonInterface
 {
     /**
      * @var Container
@@ -57,6 +62,9 @@ class Container implements ContainerInterface
         static::$instance = $this;
     }
 
+    /**
+     * @return ContainerInterface|Container
+     */
     public static function getInstance(): Container
     {
         if (static::$instance) {
@@ -70,6 +78,7 @@ class Container implements ContainerInterface
      * @param string $name
      *
      * @return mixed
+     * @throws ReflectionException
      */
     public function getShared(string $name)
     {
