@@ -8,7 +8,7 @@ use Loader\System\Interfaces\ContainerInterface;
 trait ContainerTrait
 {
     /**
-     * @var ContainerInterface
+     * @var ContainerInterface|Container
      */
     protected $container;
 
