@@ -5,7 +5,7 @@ namespace Loader\System\Interfaces;
 use Loader\System\Config;
 use Loader\System\Storage\CommonObjectStorage;
 
-interface ContainerInterface
+interface ContainerInterface extends ContainerShareInterface, BuilderAdapterInterface, PackageAdapterInterface
 {
     public function getArguments(string $class, string $method): array;
 
