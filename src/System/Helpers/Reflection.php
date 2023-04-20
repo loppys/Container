@@ -13,12 +13,12 @@ class Reflection
     protected static $reflections = [];
 
     /**
-     * @param $class
-     * @return ReflectionClass
+     * @param object|string $class
+     * @return ReflectionClass|null
      *
      * @throws ReflectionException
      */
-    public static function get($class): ReflectionClass
+    public static function get($class): ?ReflectionClass
     {
         if (is_object($class)) {
             $class = get_class($class);
@@ -60,12 +60,7 @@ class Reflection
         }
     }
 
-    /**
-     * @param object $object
-     *
-     * @return array
-     */
-    public static function getObjectVars($object): array
+    public static function getObjectVars(object $object): array
     {
         return get_object_vars($object);
     }

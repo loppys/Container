@@ -9,6 +9,12 @@ class DataStorage implements StorageInterface
 {
     protected static $data = [];
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return StorageInterface
+     */
     public function add(string $name, $value): StorageInterface
     {
         if (!array_key_exists($name, static::$data)) {
@@ -18,6 +24,12 @@ class DataStorage implements StorageInterface
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return StorageInterface
+     */
     public function replace(string $name, $value): StorageInterface
     {
         if (array_key_exists($name, static::$data)) {
@@ -36,6 +48,12 @@ class DataStorage implements StorageInterface
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return StorageInterface
+     */
     public function set(string $name, $value): StorageInterface
     {
         static::$data[$name] = $value;

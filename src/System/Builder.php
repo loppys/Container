@@ -4,71 +4,34 @@ namespace Loader\System;
 
 use Loader\System\Exceptions\ClassNotFoundException;
 use Loader\System\Exceptions\ContainerException;
+use Loader\System\Helpers\EmptyClass;
 use Loader\System\Helpers\Reflection;
 use Loader\System\Interfaces\BuilderInterface;
 use Loader\System\Interfaces\ContainerInterface;
 use Loader\System\Interfaces\ContainerInjection;
 use Loader\System\Interfaces\PackageInterface;
+use ReflectionParameter;
 use ReflectionException;
 
 class Builder implements BuilderInterface
 {
-    /*
-     * name => string
-     * className => string
-     * arguments => array
-     * defaultMethod => string
-     * defaultMethodArguments => array
-     */
-    public function packageCollect(array $packageList): bool
-    {
-        if (empty($packageList)) {
-            return false;
-        }
-
-        foreach ($packageList as $package) {
-            $temp = $this->getContainer()->getPackage($package['name']);
-
-            if (!is_array($package)) {
-                continue;
-            }
-
-            if (is_string($package['className'])) {
-                $temp->setClassName($package['className']);
-            }
-
-            if (is_array($package['arguments'])) {
-                $temp->setArguments($package['arguments']);
-            }
-
-            if (is_string($package['defaultMethod'])) {
-                $temp->setDefaultMethod($package['defaultMethod']);
-            }
-
-            if (is_array($package['defaultMethodArguments'])) {
-                $temp->setDefaultMethodArguments($package['defaultMethodArguments']);
-            }
-        }
-
-        return true;
-    }
-
     /**
      * @param PackageInterface $package
+     * @param bool $new
      * @return ContainerInjection
      *
      * @throws ReflectionException
      */
-    public function build(PackageInterface $package): ContainerInjection
+    public function build(PackageInterface $package, bool $new = false): ContainerInjection
     {
+        if (!$new && $package->hasObject()) {
+            return $package->getObject();
+        }
+
         $className = $package->getClassName();
 
         if (!Reflection::classExist($className)) {
             throw new ClassNotFoundException($className);
-        }
-
-        if ($package->hasObject()) {
-            return $package->getObject();
         }
 
         $constructor = Reflection::getConstructor($className);
@@ -78,51 +41,16 @@ class Builder implements BuilderInterface
             $method = $constructor->getName();
         }
 
-        $arguments = $package->getArguments() ?: $this->defineArguments($className, $method);
+        $argumentList = $package->getArguments() ?: $this->defineArguments($className, $method);
 
-        if (count($arguments) > 0) {
-            foreach ($arguments as $key => $argument) {
-                if (empty($argument->getType())) {
-                    continue;
-                }
+        $this->createArgument($argumentList);
 
-                $name = Reflection::getClassShortName($argument->getType()->getName());
-                $class = $argument->getType()->getName();
+        $package->setArguments($argumentList);
 
-                if (!Reflection::classExist($class)) {
-                    continue;
-                }
-
-                if (!$this->getConfig()->createArgumentPackage) {
-                    $constructor = Reflection::getConstructor($class);
-
-                    $method = '';
-                    if ($constructor) {
-                        $method = $constructor->getName();
-                    }
-
-                    $arguments[$key] = $this->createObject($class, $this->defineArguments($class, $method));
-
-                    continue;
-                }
-
-                $argumentPackage = $this->getContainer()->getPackage($name);
-                $argumentPackage->setClassName($class);
-
-                $arguments[$key] = $this->build($argumentPackage);
-            }
-        }
-
-        $package->setArguments($arguments);
-
-        if ($package->hasObject()) {
-            $object = $package->getObject();
-        } else {
-            $object = $this->createObject(
-                $package->getClassName(),
-                $arguments
-            );
-        }
+        $object = $this->createObject(
+            $package->getClassName(),
+            $argumentList
+        );
 
         if (!$object || !is_object($object)) {
             throw new ContainerException('object not created or is not object');
@@ -134,8 +62,6 @@ class Builder implements BuilderInterface
             $defaultMethod = $package->getDefaultMethod();
 
             if ($defaultMethod) {
-                $package->setDefaultMethod($defaultMethod);
-
                 $this->invoke($object, $defaultMethod, $package->getDefaultMethodArguments());
             }
 
@@ -146,24 +72,76 @@ class Builder implements BuilderInterface
     }
 
     /**
+     * @param string $name
+     * @return ContainerInjection
+     *
+     * @throws ReflectionException
+     */
+    public function getNew(string $name): ContainerInjection
+    {
+        $container = $this->getContainer();
+        $storage = $container->getStorage();
+        $objectStorage = $container->getObjectStorage();
+
+        if ($storage->has($name)) {
+            $package = $container->getPackage($name);
+
+            $class = $package->getClassName();
+
+            if ($objectStorage->has($class)) {
+                $objectStorage->delete($class);
+            }
+
+            $package->update([
+                'object' => new EmptyClass()
+            ]);
+
+            return $this->build($package, true);
+        }
+
+        throw new ContainerException("Failed new to create {$name}");
+    }
+
+    /**
      * @param string $class
      * @param array $arguments
      *
-     * @return object|null
+     * @return object
+     *
+     * @throws ReflectionException
      */
     public function createObject(string $class, array $arguments = [])
     {
-        $object = null;
+        $lowerName = strtolower($class);
+        $info = Reflection::get($class);
+
+        if ($info !== null) {
+            $class = $info->getName();
+        }
 
         $objectStorage = $this->getContainer()->getObjectStorage();
 
-        if ($objectStorage->has($class)) {
-            return $objectStorage->getObject($class);
+        if ($objectStorage->has($lowerName ?: $class)) {
+            return $objectStorage->getObject($lowerName ?: $class);
         }
 
         if (!Reflection::classExist($class)) {
             throw new ClassNotFoundException($class);
         }
+
+        if (empty($arguments)) {
+            $arguments = $this->defineArguments($class, '__construct');
+        }
+
+        $this->createArgument($arguments);
+
+        $arguments = array_filter($arguments, static function($item) {
+            if ($item instanceof ReflectionParameter) {
+                return false;
+            }
+
+            return true;
+        });
 
         if (!empty($arguments)) {
             $object = new $class(...$arguments);
@@ -171,7 +149,10 @@ class Builder implements BuilderInterface
             $object = new $class;
         }
 
-        $objectStorage->add($class, $object);
+        $objectStorage->add(
+            $lowerName,
+            $object
+        );
 
         return $object;
     }
@@ -196,6 +177,62 @@ class Builder implements BuilderInterface
         }
 
         return $arguments;
+    }
+
+    /**
+     * @param array $arguments
+     *
+     * @throws ReflectionException
+     */
+    protected function createArgument(array &$arguments): void
+    {
+        if (count($arguments) > 0) {
+            foreach ($arguments as $key => $argument) {
+                if (
+                    (is_object($argument) && !method_exists($argument, 'getType'))
+                    || (!is_object($argument) &&
+                        (is_string($argument) || is_array($argument) || is_int($argument) || is_bool($argument))
+                    )
+                ) {
+                    $arguments[$key] = $argument;
+
+                    continue;
+                }
+
+                if (empty($argument->getType())) {
+                    continue;
+                }
+
+                $name = Reflection::getClassShortName($argument->getType()->getName());
+                $class = $argument->getType()->getName();
+
+                if (empty($class)) {
+                    continue;
+                }
+
+                if (!Reflection::classExist($class)) {
+                    continue;
+                }
+
+                if (!$this->getConfig()->createArgumentPackage) {
+                    $constructor = Reflection::getConstructor($class);
+
+                    $method = '';
+                    if ($constructor) {
+                        $method = $constructor->getName();
+                    }
+
+                    $arguments[$key] = $this->createObject($class, $this->defineArguments($class, $method));
+
+                    continue;
+                }
+
+                $argumentPackage = $this->getContainer()->getPackage($name);
+                $argumentPackage->setClassName($class);
+
+                $arguments[$key] = $this->build($argumentPackage);
+            }
+        }
     }
 
     /**

@@ -4,9 +4,9 @@ namespace Loader\System\Interfaces;
 
 interface BuilderInterface
 {
-    public function packageCollect(array $packageList): bool;
+    public function build(PackageInterface $package, bool $new): ContainerInjection;
 
-    public function build(PackageInterface $package): ContainerInjection;
+    public function getNew(string $name): ContainerInjection;
 
     /**
      * @param string $class
@@ -14,7 +14,7 @@ interface BuilderInterface
      *
      * @return object|null
      */
-    public function createObject(string $class, array $arguments);
+    public function createObject(string $class, array $arguments = []);
 
     /**
      * @param object $class
@@ -23,7 +23,7 @@ interface BuilderInterface
      *
      * @return mixed
      */
-    public function invoke(object $class, string $method, array $arguments);
+    public function invoke(object $class, string $method, array $arguments = []);
 
     public function defineArguments(string $class, string $method): array;
 

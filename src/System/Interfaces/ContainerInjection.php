@@ -4,5 +4,5 @@ namespace Loader\System\Interfaces;
 
 interface ContainerInjection
 {
-    public function getName(): string;
+    public static function getName(): string;
 }

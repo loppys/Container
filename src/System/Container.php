@@ -5,22 +5,32 @@ namespace Loader\System;
 use Loader\System\Exceptions\ClassNotFoundException;
 use Loader\System\Exceptions\ContainerException;
 use Loader\System\Helpers\Reflection;
+use Loader\System\Interfaces\BuilderAdapterInterface;
 use Loader\System\Interfaces\BuilderInterface;
 use Loader\System\Interfaces\ContainerInterface;
 use Loader\System\Interfaces\ContainerInjection;
+use Loader\System\Interfaces\ContainerShareInterface;
+use Loader\System\Interfaces\PackageAdapterInterface;
 use Loader\System\Interfaces\PackageInterface;
+use Loader\System\Interfaces\SingletonInterface;
 use Loader\System\Interfaces\StorageInterface;
 use Loader\System\Storage\CommonObjectStorage;
 use Loader\System\Storage\DataStorage;
+use Loader\System\DTO\Package;
 use ReflectionMethod;
 use ReflectionException;
 
-class Container implements ContainerInterface
+class Container implements ContainerInterface, ContainerShareInterface, BuilderAdapterInterface, PackageAdapterInterface, SingletonInterface
 {
     /**
      * @var Container
      */
     protected static $instance;
+
+    /**
+     * @var array
+     */
+    protected $sharedList;
 
     /**
      * @var StorageInterface
@@ -36,7 +46,7 @@ class Container implements ContainerInterface
      * @var BuilderInterface
      */
     private $builder;
-    
+
     /**
      * @var Config
      */
@@ -52,6 +62,9 @@ class Container implements ContainerInterface
         static::$instance = $this;
     }
 
+    /**
+     * @return ContainerInterface|Container
+     */
     public static function getInstance(): Container
     {
         if (static::$instance) {
@@ -59,6 +72,40 @@ class Container implements ContainerInterface
         }
 
         throw new ContainerException('container not init');
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     * @throws ReflectionException
+     */
+    public function getShared(string $name)
+    {
+        if (!empty($this->sharedList[$name])) {
+            return $this->sharedList[$name];
+        }
+
+        if (Reflection::classExist($name)) {
+            $this->setShared($name, $this->createObject($name));
+
+            return $this->getShared($name);
+        }
+
+        throw new ContainerException("[ {$name} ] not init or not found");
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return ContainerInterface
+     */
+    public function setShared(string $name, $value): ContainerInterface
+    {
+        $this->sharedList[$name] = $value;
+
+        return $this;
     }
 
     /**
@@ -100,10 +147,23 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param string $name
+     * @return ContainerInjection
+     *
+     * @throws ReflectionException
+     */
+    public function getNew(string $name): ContainerInjection
+    {
+        return $this->builder->getNew($name);
+    }
+
+    /**
      * @param string $class
      * @param array $arguments
      *
-     * @return object|null
+     * @return object
+     *
+     * @throws ReflectionException
      */
     public function createObject(string $class, array $arguments = [])
     {
@@ -164,6 +224,46 @@ class Container implements ContainerInterface
         $this->storage->set($name, $package);
 
         return $package;
+    }
+
+    /*
+     * name => string
+     * className => string
+     * arguments => array
+     * defaultMethod => string
+     * defaultMethodArguments => array
+     */
+    public function packageCollect(array $packageList): bool
+    {
+        if (empty($packageList)) {
+            return false;
+        }
+
+        foreach ($packageList as $package) {
+            if (empty($package['name']) || !is_array($package)) {
+                continue;
+            }
+
+            $tempPackage = $this->getPackage($package['name']);
+
+            if (is_string($package['className'])) {
+                $tempPackage->setClassName($package['className']);
+            }
+
+            if (is_array($package['arguments'])) {
+                $tempPackage->setArguments($package['arguments']);
+            }
+
+            if (is_string($package['defaultMethod'])) {
+                $tempPackage->setDefaultMethod($package['defaultMethod']);
+            }
+
+            if (is_array($package['defaultMethodArguments'])) {
+                $tempPackage->setDefaultMethodArguments($package['defaultMethodArguments']);
+            }
+        }
+
+        return true;
     }
 
     public function setStorage(StorageInterface $storage): ContainerInterface

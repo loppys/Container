@@ -8,17 +8,17 @@ interface PackageInterface
 
     public function update(array $data): PackageInterface;
 
-    public function setName(string $name): void;
+    public function setName(string $name): PackageInterface;
 
-    public function setObject(ContainerInjection $object): void;
+    public function setObject(ContainerInjection $object): PackageInterface;
 
-    public function setClassName(string $class): void;
+    public function setClassName(string $class): PackageInterface;
 
-    public function setArguments(array $arguments): void;
+    public function setArguments(array $arguments): PackageInterface;
 
-    public function setDefaultMethod(string $method): void;
+    public function setDefaultMethod(string $method): PackageInterface;
 
-    public function setDefaultMethodArguments(array $arguments): void;
+    public function setDefaultMethodArguments(array $arguments): PackageInterface;
 
     public function getName(): string;
 
