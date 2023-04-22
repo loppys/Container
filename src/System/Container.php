@@ -2,15 +2,18 @@
 
 namespace Loader\System;
 
+use Loader\Libraries\Alias\AliasAdapter;
+use Loader\Libraries\Alias\DTO\Alias;
+use Loader\Libraries\Alias\Interfaces\AliasAdapterInterface;
+use Loader\Libraries\Alias\Interfaces\AliasInterface;
+use Loader\Libraries\Alias\Storages\AliasStorage;
 use Loader\System\Exceptions\ClassNotFoundException;
 use Loader\System\Exceptions\ContainerException;
 use Loader\System\Helpers\Reflection;
-use Loader\System\Interfaces\BuilderAdapterInterface;
 use Loader\System\Interfaces\BuilderInterface;
+use Loader\System\Interfaces\ContainerFastCall;
 use Loader\System\Interfaces\ContainerInterface;
 use Loader\System\Interfaces\ContainerInjection;
-use Loader\System\Interfaces\ContainerShareInterface;
-use Loader\System\Interfaces\PackageAdapterInterface;
 use Loader\System\Interfaces\PackageInterface;
 use Loader\System\Interfaces\SingletonInterface;
 use Loader\System\Interfaces\StorageInterface;
@@ -20,7 +23,7 @@ use Loader\System\DTO\Package;
 use ReflectionMethod;
 use ReflectionException;
 
-class Container implements ContainerInterface, ContainerShareInterface, BuilderAdapterInterface, PackageAdapterInterface, SingletonInterface
+class Container implements ContainerInterface, ContainerFastCall, AliasAdapterInterface, SingletonInterface
 {
     /**
      * @var Container
@@ -52,6 +55,11 @@ class Container implements ContainerInterface, ContainerShareInterface, BuilderA
      */
     private $config;
 
+    /**
+     * @var AliasAdapterInterface
+     */
+    private $aliasAdapter;
+
     public function __construct()
     {
         $this->storage = new DataStorage();
@@ -60,6 +68,24 @@ class Container implements ContainerInterface, ContainerShareInterface, BuilderA
         $this->config = new Config();
 
         static::$instance = $this;
+        
+        $this->aliasAdapter = $this->createObject(AliasAdapter::class);
+
+        static::$instance = $this;
+    }
+
+    /**
+     * @inheritDoc
+     * 
+     * @throws ReflectionException
+     */
+    public function get(string $name, array $arguments = [])
+    {
+        if (empty($arguments)) {
+            return $this->createObject($name, $arguments);
+        }
+        
+        return $this->getShared($name);
     }
 
     /**
@@ -75,10 +101,7 @@ class Container implements ContainerInterface, ContainerShareInterface, BuilderA
     }
 
     /**
-     * @param string $name
-     *
-     * @return mixed
-     * @throws ReflectionException
+     * @inheritDoc
      */
     public function getShared(string $name)
     {
@@ -96,10 +119,7 @@ class Container implements ContainerInterface, ContainerShareInterface, BuilderA
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
-     *
-     * @return ContainerInterface
+     * @inheritDoc
      */
     public function setShared(string $name, $value): ContainerInterface
     {
@@ -304,5 +324,52 @@ class Container implements ContainerInterface, ContainerShareInterface, BuilderA
     public function getObjectStorage(): CommonObjectStorage
     {
         return $this->objectStorage;
+    }
+
+    public function addAlias(string $name, string $alias): AliasAdapterInterface
+    {
+        return $this->aliasAdapter->addAlias($name, $alias);
+    }
+
+    public function removeAlias(string $name): AliasAdapterInterface
+    {
+        return $this->aliasAdapter->removeAlias($name);
+    }
+
+    public function setAlias(AliasInterface $alias): AliasAdapterInterface
+    {
+        return $this->aliasAdapter->setAlias($alias);
+    }
+
+    public function getAlias(string $name): Alias
+    {
+        return $this->aliasAdapter->getAlias($name);
+    }
+
+    public function setClassNameForAlias(string $name, string $class): AliasInterface
+    {
+        return $this->aliasAdapter->setClassNameForAlias($name, $class);
+    }
+
+    public function hasAliasByName(string $name, string $alias): bool
+    {
+        return $this->aliasAdapter->hasAliasByName($name, $alias);
+    }
+
+    public function hasAliasInStorage(string $name): bool
+    {
+        return $this->aliasAdapter->hasAliasInStorage($name);
+    }
+
+    public function getAliasStorage(): AliasStorage
+    {
+        return $this->aliasAdapter->getAliasStorage();
+    }
+
+    public function setNewAlias(string $name, string $class): void
+    {
+        $alias = Alias::getNew($name)->setClassName($class);
+
+        $this->aliasAdapter->setAlias($alias);
     }
 }

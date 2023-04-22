@@ -2,6 +2,7 @@
 
 namespace Loader\System;
 
+use Loader\Libraries\Alias\AliasFinder;
 use Loader\System\Exceptions\ClassNotFoundException;
 use Loader\System\Exceptions\ContainerException;
 use Loader\System\Helpers\EmptyClass;
@@ -112,6 +113,14 @@ class Builder implements BuilderInterface
      */
     public function createObject(string $class, array $arguments = [])
     {
+        if (interface_exists($class)) {
+            $class = AliasFinder::findReference($class);
+
+            if (!class_exists($class)) {
+                throw new ContainerException("{$class} alias is invalid");
+            }
+        }
+
         $lowerName = strtolower($class);
         $info = Reflection::get($class);
 
