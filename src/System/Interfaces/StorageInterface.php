@@ -32,7 +32,12 @@ interface StorageInterface
 
     public function has(string $name): bool;
 
-    public function get(string $name): ?PackageInterface;
+    /**
+     * @param string $name
+     * 
+     * @return mixed
+     */
+    public function get(string $name);
 
     public function getDataList(): array;
 }
