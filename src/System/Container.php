@@ -259,7 +259,37 @@ class Container implements ContainerInterface, ContainerFastCall, AliasAdapterIn
             return false;
         }
 
-        foreach ($packageList as $package) {
+        foreach ($packageList as $key => $package) {
+            if ($key === 'alias') {
+                if (is_array($package)) {
+                    foreach ($package as $class => $aliasInfo) {
+                        if (empty($class) || empty($aliasInfo)) {
+                            continue;
+                        }
+
+                        $ownerAlias = is_array($aliasInfo) ? $aliasInfo[0] : $aliasInfo;
+
+                        $this->setNewAlias($ownerAlias, $class);
+
+                        if (is_array($aliasInfo)) {
+                            $alias = $this->getAlias($ownerAlias);
+
+                            $other = [];
+
+                            foreach ($aliasInfo as $item) {
+                                if (empty($item)) {
+                                    continue;
+                                }
+
+                                $alias->add($item);
+                            }
+                        }
+                    }
+                }
+
+                continue;
+            }
+
             if (empty($package['name']) || !is_array($package)) {
                 continue;
             }

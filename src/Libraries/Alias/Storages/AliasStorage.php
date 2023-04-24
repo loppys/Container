@@ -3,7 +3,7 @@
 namespace Loader\Libraries\Alias\Storages;
 
 use Loader\Libraries\Alias\DTO\Alias;
-use Loader\System\Exceptions\AliasException;
+use Loader\Libraries\Alias\Exceptions\AliasException;
 use Loader\System\Interfaces\StorageInterface;
 
 class AliasStorage implements StorageInterface
