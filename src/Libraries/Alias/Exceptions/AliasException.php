@@ -1,6 +1,6 @@
 <?php
 
-namespace Loader\System\Exceptions;
+namespace Loader\Libraries\Alias\Exceptions;
 
 use RuntimeException;
 

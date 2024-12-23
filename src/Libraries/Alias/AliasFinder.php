@@ -3,7 +3,7 @@
 namespace Loader\Libraries\Alias;
 
 use Loader\System\Container;
-use Loader\System\Exceptions\AliasException;
+use Loader\Libraries\Alias\Exceptions\AliasException;
 
 class AliasFinder
 {
@@ -16,7 +16,7 @@ class AliasFinder
         }
 
         if (!$container->hasAliasInStorage($name)) {
-            return '';
+            return $name;
         }
 
         $alias = $container->getAlias($name);
