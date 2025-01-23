@@ -1,15 +1,21 @@
 {
-  "name": "vengine/container",
+  "name": "vengine-libs/container",
   "description": "vengine container",
   "type": "library",
   "autoload": {
     "psr-4": {
-      "Loader\\": "src/"
+      "Loader\\": "src/",
+      "Vengine\\Libs\\": "src_new/"
     }
+  },
+  "require": {
+    "php": ">=8.0",
+    "vengine/cache": "*",
+    "psr/container": "*"
   },
   "license": "MIT",
   "require-dev": {
     "phpunit/phpunit": "^9.5"
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "stable"
 }
