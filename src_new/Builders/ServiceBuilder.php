@@ -257,4 +257,11 @@ class ServiceBuilder
     {
         return $this->config;
     }
+    
+    public function changeConfig(string $id, string $config): static
+    {
+        $this->config = array_merge($this->config, $config);
+
+        return $this;
+    }
 }
