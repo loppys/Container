@@ -154,6 +154,10 @@ class ServiceBuilder
                 $arguments = $this->resolveDependencies($fn, $arguments);
             }
 
+            if ($arguments !== false && empty($arguments)) {
+                $arguments = [Container::getInstance()];
+            }
+
             return $fn->invoke(...$arguments);
         }
 
