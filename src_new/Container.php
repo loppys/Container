@@ -93,4 +93,19 @@ class Container implements ContainerInterface
     {
         return $this->serviceBuilder->hasService($id);
     }
+
+    public function add(string $id, array $config): bool
+    {
+        return $this->serviceBuilder->addService($id, $config);
+    }
+
+    public function changeConfig(string $config): void
+    {
+        $this->serviceBuilder->changeConfig($config);
+    }
+
+    public function registerAlias(string $reference, string $alias): void
+    {
+        $this->serviceBuilder->registerAlias($reference, $alias);
+    }
 }
