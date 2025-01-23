@@ -258,10 +258,26 @@ class ServiceBuilder
         return $this->config;
     }
     
-    public function changeConfig(string $id, string $config): static
+    public function changeConfig(string $config): static
     {
         $this->config = array_merge($this->config, $config);
 
         return $this;
+    }
+
+    public function addService(string $id, array $config): bool
+    {
+        if (!empty($this->config['services'][$id])) {
+            return false;
+        }
+
+        $this->config['services'][$id] = $this->serviceResolver->resolveServices(['services' => $config])['services'];
+
+        return true;
+    }
+
+    public function registerAlias(string $reference, string $alias): void
+    {
+        $this->aliasFinder->registerAlias($reference, $alias);
     }
 }
