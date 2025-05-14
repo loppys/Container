@@ -9,7 +9,6 @@ class Reference
         /** @var string[] */
         protected array $services = []
     ) {
-
     }
 
     public function addService(string $serviceId): static

@@ -11,7 +11,6 @@ abstract class AbstractPackage
         /** @var ServiceCollectorInterface[] $collectors */
         protected array $collectors = []
     ) {
-
     }
 
     public function addServiceCollector(ServiceCollectorInterface $serviceCollector): static

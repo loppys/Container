@@ -10,7 +10,6 @@ class ReplaceDefinition implements ReplaceDefinitionInterface
         protected readonly string $service,
         protected readonly string $replace,
     ) {
-
     }
 
     public function getReplace(): string

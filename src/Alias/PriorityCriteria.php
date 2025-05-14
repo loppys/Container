@@ -8,7 +8,6 @@ class PriorityCriteria
         protected int|array|null $priority = null,
         protected string $operation = PriorityCriteriaOperations::EQUALS
     ) {
-
     }
 
     public function getPriority(): array|int|null

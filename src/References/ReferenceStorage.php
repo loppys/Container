@@ -10,7 +10,6 @@ class ReferenceStorage
         /** @var Reference[] $refs */
         protected array $refs = []
     ) {
-
     }
 
     public function addReference(Reference $reference): static

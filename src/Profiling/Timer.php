@@ -22,7 +22,6 @@ class Timer implements TimerInterface
 
     public function __construct(array $logSettings)
     {
-
     }
 
     public function setLogToFile(bool $enable): static
