@@ -8,8 +8,9 @@ class Configure implements ConfigureInterface
 {
     public function __construct(
         protected readonly string $configPath = __DIR__ . '/base.config.php'
-    )
-    { }
+    ) {
+
+    }
 
     public function getConfigPath(): string
     {

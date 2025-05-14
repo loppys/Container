@@ -13,8 +13,9 @@ class Alias implements ArrayAccess, JsonSerializable
         protected string $name,
         protected string $groupKey,
         protected int $priority
-    )
-    { }
+    ) {
+
+    }
 
     public function setPriority(int $priority): static
     {

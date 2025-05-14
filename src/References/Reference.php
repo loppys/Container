@@ -8,8 +8,9 @@ class Reference
         protected readonly string $referenceId,
         /** @var string[] */
         protected array $services = []
-    )
-    { }
+    ) {
+
+    }
 
     public function addService(string $serviceId): static
     {

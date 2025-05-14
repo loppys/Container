@@ -2,7 +2,6 @@
 
 namespace Vengine\Libs\Settings;
 
-
 class DefinitionSettings extends AbstractSettings
 {
     protected string $name = 'definition';

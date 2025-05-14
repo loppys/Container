@@ -9,8 +9,9 @@ class ReplaceDefinition implements ReplaceDefinitionInterface
     public function __construct(
         protected readonly string $service,
         protected readonly string $replace,
-    )
-    { }
+    ) {
+
+    }
 
     public function getReplace(): string
     {

@@ -8,8 +8,9 @@ class AliasCriteria
         protected string $group = '',
         protected string $name = '',
         protected PriorityCriteria $priority = new PriorityCriteria()
-    )
-    { }
+    ) {
+
+    }
 
     public function getPriority(): PriorityCriteria
     {
