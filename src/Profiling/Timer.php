@@ -122,7 +122,10 @@ class Timer implements TimerInterface
         foreach ($this->log as $entry) {
             $time = number_format($entry['time'], 6);
             $indent = str_repeat('  ', $entry['depth']);
-            $data = isset($entry['data']) ? json_encode($entry['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '';
+            $data = isset($entry['data'])
+                ? json_encode($entry['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                : ''
+            ;
             $dataStr = $data ? " data: {$data}" : '';
             echo "{$indent}[{$time}] {$entry['action']} '{$entry['point']}'{$dataStr}\n";
         }
@@ -136,7 +139,10 @@ class Timer implements TimerInterface
 
         $time = number_format($entry['time'], 6);
         $indent = str_repeat('  ', $entry['depth']);
-        $data = isset($entry['data']) ? json_encode($entry['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '';
+        $data = isset($entry['data'])
+            ? json_encode($entry['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            : ''
+        ;
         $dataStr = $data ? " data: {$data}" : '';
         $line = "{$indent}[{$time}] {$entry['action']} '{$entry['point']}'{$dataStr}\n";
 
