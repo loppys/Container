@@ -30,12 +30,12 @@ class Definition implements DefinitionInterface
 
     public function __construct(
         protected string $id,
-        protected mixed  $concrete = null,
-        protected bool   $shared = false,
+        protected mixed $concrete = null,
+        protected bool $shared = false,
         /** @var ArgumentInterface[] */
-        protected array  $arguments = [],
-        protected array  $methods = [],
-        protected array  $sharedTags = [],
+        protected array $arguments = [],
+        protected array $methods = [],
+        protected array $sharedTags = [],
         /** @var Reference[] */
         protected array $refs = []
     ) {
