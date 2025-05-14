@@ -16,7 +16,8 @@
   "require-dev": {
     "codeception/codeception": "5.2.*",
     "codeception/module-asserts": "*",
-    "phpunit/phpunit": "^9.5"
+    "phpunit/phpunit": "^9.5",
+    "squizlabs/PHP_CodeSniffer": "^3.7"
   },
   "minimum-stability": "stable"
 }
