@@ -12,7 +12,8 @@ class ReferenceFinder implements ContainerAwareInterface
 
     public function __construct(
         protected readonly ReferenceStorage $storage
-    ) { }
+    )
+    { }
 
     /**
      * @throws ContainerException
