@@ -116,7 +116,8 @@ class DefinitionTest extends TestCase
             $i++;
         }
 
-        $this->assertLessThanOrEqual(0.3, microtime(true) - $start);
+        // Погрешность +0.75сек для пайплайна. Локально отрабатывает за ~0.25сек
+        $this->assertLessThanOrEqual(1, microtime(true) - $start);
     }
 
     /**
@@ -138,7 +139,8 @@ class DefinitionTest extends TestCase
             $i++;
         }
 
-        $this->assertLessThanOrEqual(20, microtime(true) - $start);
+        // Погрешность +80сек для пайплайна. Локально отрабатывает за ~20сек
+        $this->assertLessThanOrEqual(100, microtime(true) - $start);
     }
 
     /**
@@ -160,7 +162,8 @@ class DefinitionTest extends TestCase
             $i++;
         }
 
-        $this->assertLessThanOrEqual(0.25, microtime(true) - $start);
+        // Погрешность +0.75сек для пайплайна. Локально отрабатывает за ~0.25сек
+        $this->assertLessThanOrEqual(1, microtime(true) - $start);
     }
 
     /**
@@ -182,7 +185,8 @@ class DefinitionTest extends TestCase
             $i++;
         }
 
-        $this->assertLessThanOrEqual(20, microtime(true) - $start);
+        // Погрешность +80сек для пайплайна. Локально отрабатывает за ~20сек
+        $this->assertLessThanOrEqual(100, microtime(true) - $start);
     }
 
     /**
