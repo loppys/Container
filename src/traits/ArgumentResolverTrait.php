@@ -22,7 +22,6 @@ use Vengine\Libs\interfaces\LiteralArgumentInterface;
 
 trait ArgumentResolverTrait
 {
-
     /**
      * @throws NotFoundException
      * @throws NotFoundExceptionInterface
