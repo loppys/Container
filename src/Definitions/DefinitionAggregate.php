@@ -3,6 +3,8 @@
 namespace Vengine\Libs\Definitions;
 
 use Generator;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Vengine\Libs\Exceptions\ContainerException;
 use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\interfaces\DefinitionAggregateInterface;
@@ -20,6 +22,12 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         });
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
     public function add(string $id, $definition, bool $overwrite = false): DefinitionInterface
     {
         if (true === $overwrite) {
@@ -30,14 +38,24 @@ class DefinitionAggregate implements DefinitionAggregateInterface
             $definition = new Definition($id, $definition);
         }
 
-        $this->definitions[] = $definition->setAlias($id);
+        $definition->setContainer($this->getContainer());
+        $definition->fetchConstructor();
+
+        $this->definitions[] = $definition->setId($id);
 
         return $definition;
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
     public function addShared(string $id, $definition, bool $overwrite = false): DefinitionInterface
     {
         $definition = $this->add($id, $definition, $overwrite);
+
         return $definition->setShared(true);
     }
 
@@ -47,7 +65,7 @@ class DefinitionAggregate implements DefinitionAggregateInterface
 
         /** @var DefinitionInterface $definition */
         foreach ($this as $definition) {
-            if ($id === $definition->getAlias()) {
+            if ($id === $definition->getId()) {
                 return true;
             }
         }
@@ -55,10 +73,10 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         return false;
     }
 
-    public function hasTag(string $tag): bool
+    public function hasSharedTag(string $tag): bool
     {
         foreach ($this as $definition) {
-            if ($definition->hasTag($tag)) {
+            if ($definition->hasSharedTag($tag)) {
                 return true;
             }
         }
@@ -75,7 +93,7 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         $id = Definition::normaliseAlias($id);
 
         foreach ($this as $definition) {
-            if ($id === $definition->getAlias()) {
+            if ($id === $definition->getId()) {
                 return $definition->setContainer($this->getContainer());
             }
         }
@@ -125,7 +143,7 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         $arrayOf = [];
 
         foreach ($this as $definition) {
-            if ($definition->hasTag($tag)) {
+            if ($definition->hasSharedTag($tag)) {
                 $arrayOf[] = $definition->setContainer($this->getContainer())->resolveNew();
             }
         }
@@ -138,7 +156,7 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         $id = Definition::normaliseAlias($id);
 
         foreach ($this as $key => $definition) {
-            if ($id === $definition->getAlias()) {
+            if ($id === $definition->getId()) {
                 unset($this->definitions[$key]);
             }
         }

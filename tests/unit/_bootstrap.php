@@ -32,10 +32,27 @@ class TestDefinition extends Definition
     }
 }
 
+class TestDefClass
+{
+    public string $test = '888';
+}
+
 class TestClass
 {
-    public function isCreated(): bool
+    protected TestDefClass $testDefClass;
+
+    public function __construct(TestDefClass $testDefClass)
     {
-        return true;
+        $this->testDefClass = $testDefClass;
+    }
+
+    public function getTestProperty(): string
+    {
+        return $this->testDefClass->test;
+    }
+
+    public function changeTestPropertyValue(string $newValue): void
+    {
+        $this->testDefClass->test = $newValue;
     }
 }

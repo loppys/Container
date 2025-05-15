@@ -13,15 +13,15 @@ class ConfigResolver
      */
     public function configResolve(ConfigureInterface $configure): array
     {
-        $baseConfig = require_once $configure->getConfigPath();
-        $baseConfig['services'] = require_once $baseConfig['services'];
+        $baseConfig = require $configure->getConfigPath();
+        $baseConfig['services'] = require $baseConfig['services'];
 
         if ($configure instanceof OverwriteConfigure) {
-            $overwriteConfig = require_once $configure->getOverwriteConfigPath();
+            $overwriteConfig = require $configure->getOverwriteConfigPath();
 
             if (!empty($overwriteConfig['services'])) {
                 if (is_string($overwriteConfig['services']) && file_exists($overwriteConfig['services'])) {
-                    $overwriteConfig['services'] = require_once $overwriteConfig['services'];
+                    $overwriteConfig['services'] = require $overwriteConfig['services'];
                 }
 
                 if (!is_array($overwriteConfig['services'])) {

@@ -2,11 +2,16 @@
 
 namespace Vengine\Libs\Definitions;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
+use Vengine\Libs\Arguments\LinkServiceArgument;
 use Vengine\Libs\Arguments\LiteralArgument;
 use Vengine\Libs\Exceptions\CircularServiceLoadingException;
 use Vengine\Libs\Exceptions\ContainerException;
+use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\interfaces\ArgumentInterface;
 use Vengine\Libs\interfaces\ContainerInterface;
 use Vengine\Libs\interfaces\DefinitionInterface;
@@ -43,7 +48,26 @@ class Definition implements DefinitionInterface
         $this->concrete ??= $this->id;
     }
 
-    public function addSharedTags(string ...$tags): DefinitionInterface
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
+    public function fetchConstructor(): void
+    {
+        if (
+            !is_callable($this->concrete)
+            && class_exists($this->concrete)
+            && method_exists($this->concrete, '__construct')
+        ) {
+            $rfm = (new ReflectionClass($this->concrete))->getConstructor();
+
+            $this->arguments = $this->reflectArguments($rfm, $this->arguments);
+        }
+    }
+
+    public function addSharedTags(array $tags): DefinitionInterface
     {
         foreach ($tags as $tag) {
             $this->sharedTags[$tag] = true;
@@ -52,7 +76,7 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
-    public function hasSharedTags(string $tag): bool
+    public function hasSharedTag(string $tag): bool
     {
         return isset($this->sharedTags[$tag]);
     }
@@ -67,16 +91,6 @@ class Definition implements DefinitionInterface
     public function getId(): string
     {
         return static::normaliseAlias($this->id);
-    }
-
-    public function setAlias(string $id): DefinitionInterface
-    {
-        return $this->setId($id);
-    }
-
-    public function getAlias(): string
-    {
-        return $this->getId();
     }
 
     public function setShared(bool $shared = true): DefinitionInterface
@@ -115,6 +129,18 @@ class Definition implements DefinitionInterface
             }
 
             $this->addArgument($arg);
+
+            return $this;
+        }
+
+        if (str_contains($value, '@')) {
+            $value = mb_substr($value, 1);
+            if ($this->getContainer()->has($value)) {
+                $this->addArgument(
+                    (new LinkServiceArgument())
+                        ->setId($value)
+                );
+            }
         }
 
         return $this;
@@ -130,7 +156,11 @@ class Definition implements DefinitionInterface
     public function addArguments(array $args): DefinitionInterface
     {
         foreach ($args as $arg) {
-            $this->addArgument($arg);
+            if (!$arg instanceof ArgumentInterface) {
+                $this->addRawArgument($arg);
+            } else {
+                $this->addArgument($arg);
+            }
         }
 
         return $this;
@@ -185,6 +215,10 @@ class Definition implements DefinitionInterface
     }
 
     /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundException
+     * @throws ContainerException
      * @throws ReflectionException
      * @throws CircularServiceLoadingException
      */
@@ -257,20 +291,6 @@ class Definition implements DefinitionInterface
         $reflection = new ReflectionClass($concrete);
 
         return $reflection->newInstanceArgs($resolved);
-    }
-
-    /**
-     * @throws ReflectionException
-     */
-    protected function resolveProperties(object $obj, array $properties): object
-    {
-        $reflection = new ReflectionClass($obj);
-
-        foreach ($properties as $name => $value) {
-            $reflection->getProperty($name)->setValue($obj, $value);
-        }
-
-        return $obj;
     }
 
     /**

@@ -8,7 +8,7 @@ abstract class AbstractBaseArgument implements ArgumentInterface
 {
     protected ?string $id = null;
 
-    protected mixed $value;
+    protected mixed $value = null;
 
     public function getValue(): mixed
     {

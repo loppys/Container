@@ -2,22 +2,69 @@
 
 namespace Vengine\Libs\traits;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionFunctionAbstract;
 use ReflectionNamedType;
+use ReflectionException;
+use ReflectionClass;
 use Vengine\Libs\Arguments\DefaultValueArgument;
 use Vengine\Libs\Arguments\LiteralArgument;
 use Vengine\Libs\Arguments\ResolvableArgument;
 use Vengine\Libs\Container;
-use Vengine\Libs\Exceptions\CircularServiceLoadingException;
 use Vengine\Libs\Exceptions\ContainerException;
 use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\interfaces\ArgumentInterface;
 use Vengine\Libs\interfaces\ContainerInterface;
 use Vengine\Libs\interfaces\DefaultValueInterface;
+use Vengine\Libs\interfaces\LinkServiceArgumentInterface;
 use Vengine\Libs\interfaces\LiteralArgumentInterface;
 
 trait ArgumentResolverTrait
 {
+
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ReflectionException
+     * @throws ContainerExceptionInterface
+     */
+    public function resolveArgumentsAndProperties(array $arguments, array $objAndProperties = []): array
+    {
+        return [$this->resolveArguments($arguments), $this->resolveProperties(...$objAndProperties)];
+    }
+
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ReflectionException
+     * @throws ContainerExceptionInterface
+     */
+    protected function resolveProperties(object $obj, array $properties): object
+    {
+        $reflection = new ReflectionClass($obj);
+
+        foreach ($properties as $name => $value) {
+            if (str_contains($value, '@')) {
+                $value = mb_substr($value, 1);
+
+                $value = $this->getContainer()->get($value);
+            }
+
+            $reflection->getProperty($name)->setValue($obj, $value);
+        }
+
+        return $obj;
+    }
+
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
     public function resolveArguments(array $arguments): array
     {
         try {
@@ -27,6 +74,24 @@ trait ArgumentResolverTrait
         }
 
         foreach ($arguments as &$arg) {
+            if ($arg instanceof DefaultValueInterface) {
+                $arg = $arg->getDefaultValue();
+
+                continue;
+            }
+
+            if ($arg instanceof LinkServiceArgumentInterface && $container instanceof ContainerInterface) {
+                $arg = $container->get($arg->getId());
+
+                continue;
+            }
+
+            if ($arg instanceof ResolvableArgument) {
+                $arg = $this->getContainer()->get($arg->getValue());
+
+                continue;
+            }
+
             if ($arg instanceof LiteralArgumentInterface) {
                 $arg = $arg->getValue();
 
@@ -49,12 +114,6 @@ trait ArgumentResolverTrait
                 if ($arg instanceof ArgumentInterface) {
                     $arg = $arg->getValue();
                 }
-
-                continue;
-            }
-
-            if ($arg instanceof DefaultValueInterface) {
-                $arg = $arg->getDefaultValue();
             }
         }
 
@@ -63,6 +122,9 @@ trait ArgumentResolverTrait
 
     /**
      * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      */
     public function reflectArguments(ReflectionFunctionAbstract $method, array $args = []): array
     {

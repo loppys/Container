@@ -2,7 +2,7 @@
 
 namespace Vengine\Libs\interfaces;
 
-interface DefinitionInterface
+interface DefinitionInterface extends ContainerAwareInterface
 {
     public function getId(): string;
     public function setId(string $id): DefinitionInterface;
@@ -13,14 +13,13 @@ interface DefinitionInterface
     public function addMethodCalls(array $methods = []): DefinitionInterface;
     public function replaceProperties(array $properties = []): DefinitionInterface;
     public function addRefs(array ...$refs): DefinitionInterface;
-    public function addSharedTags(string ...$tags): DefinitionInterface;
-    public function getAlias(): string;
+    public function addSharedTags(array $tags): DefinitionInterface;
     public function getConcrete(): mixed;
-    public function hasSharedTags(string $tag): bool;
+    public function hasSharedTag(string $tag): bool;
     public function isShared(): bool;
     public function resolve(): mixed;
     public function resolveNew(): mixed;
-    public function setAlias(string $id): DefinitionInterface;
     public function setConcrete(mixed $concrete): DefinitionInterface;
     public function setShared(bool $shared): DefinitionInterface;
+    public function fetchConstructor(): void;
 }

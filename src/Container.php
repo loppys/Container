@@ -2,7 +2,10 @@
 
 namespace Vengine\Libs;
 
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionMethod;
 use Psr\Container\ContainerExceptionInterface;
+use Vengine\Libs\Arguments\LinkServiceArgument;
 use Vengine\Libs\config\ConfigResolver;
 use Vengine\Libs\Definitions\Definition;
 use Vengine\Libs\Definitions\DefinitionAggregate;
@@ -134,17 +137,54 @@ class Container implements ContainerInterface
         return $this->definitions->add($id, $concrete, $toOverwrite);
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
     public function addRawService(string $id, array $service): DefinitionInterface
     {
         $def = new Definition($id);
 
-        $sharedTags = $definition['sharedTags'] ?? [];
-        $refs = $definition['refs'] ?? [];
-        $closure = $definition['closure'] ?? null;
-        $class = $definition['class'] ?? '';
-        $arguments = $definition['arguments'] ?? [];
-        $calls = $definition['calls'] ?? [];
-        $properties = $definition['properties'] ?? [];
+        $def->setContainer($this);
+        $def->fetchConstructor();
+
+        $sharedTags = $service['sharedTags'] ?? [];
+        $refs = $service['refs'] ?? [];
+        $closure = $service['closure'] ?? null;
+        $class = $service['class'] ?? null;
+        $arguments = $service['arguments'] ?? [];
+        $calls = $service['calls'] ?? [];
+        $properties = $service['properties'] ?? [];
+
+        if (is_null($closure) && is_null($class)) {
+            throw new ContainerException('addRawService: closure && class is null');
+        }
+
+        foreach ($arguments as $ak => &$av) {
+            if (!is_string($av)) {
+                continue;
+            }
+
+            if (str_contains($av, '@')) {
+                $av = mb_substr($av, 1);
+
+                $av = (new LinkServiceArgument())
+                    ->setId($av)
+                ;
+            }
+        }
+
+        foreach ($properties as $pk => &$pv) {
+            if (str_contains($pv, '@')) {
+                $pv = mb_substr($pv, 1);
+
+                $pv = (new LinkServiceArgument())
+                    ->setId($pv)
+                ;
+            }
+        }
 
         $def
             ->addSharedTags($sharedTags)
@@ -153,15 +193,27 @@ class Container implements ContainerInterface
             ->addArguments($arguments)
             ->replaceProperties($properties)
             ->addRefs($refs)
+            ->setShared(
+                $service['shared'] ?? $this->getSettingsByName(DefinitionSettings::class)->isAutoShared()
+            )
         ;
+
+        $this->definitions->add($id, $def);
 
         return $def;
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
     public function addShared(string $id, $concrete = null, bool $overwrite = false): DefinitionInterface
     {
         $toOverwrite = $this->defaultToOverwrite || $overwrite;
-        $concrete = $concrete ??= $id;
+        $concrete ??= $id;
+
         return $this->definitions->addShared($id, $concrete, $toOverwrite);
     }
 
@@ -266,11 +318,15 @@ class Container implements ContainerInterface
 
     public function has(string $id): bool
     {
+        if (str_contains($id, '@')) {
+            $id = mb_substr($id, 1);
+        }
+
         if ($this->definitions->has($id)) {
             return true;
         }
 
-        if ($this->definitions->hasTag($id)) {
+        if ($this->definitions->hasSharedTag($id)) {
             return true;
         }
 
@@ -310,6 +366,10 @@ class Container implements ContainerInterface
      */
     protected function resolve(string $id, array $arguments = [], bool $new = false): mixed
     {
+        if (str_contains($id, '@')) {
+            $id = mb_substr($id, 1);
+        }
+
         $this->profilingEventHandler->handle(ProfilingEventTypeStorage::CREATE_SERVICE, $id);
 
         if ($this->definitions->has($id)) {
@@ -320,7 +380,7 @@ class Container implements ContainerInterface
             return $this->inflectors->inflect($resolved);
         }
 
-        if ($this->definitions->hasTag($id)) {
+        if ($this->definitions->hasSharedTag($id)) {
             $arrayOf = (true === $new)
                 ? $this->definitions->resolveTaggedNew($id)
                 : $this->definitions->resolveTagged($id);
@@ -337,11 +397,11 @@ class Container implements ContainerInterface
         if ($this->providers->provides($id)) {
             $this->providers->register($id);
 
-            if (false === $this->definitions->has($id) && false === $this->definitions->hasTag($id)) {
+            if (false === $this->definitions->has($id) && false === $this->definitions->hasSharedTag($id)) {
                 throw new ContainerException(sprintf('Service provider lied about providing (%s) service', $id));
             }
 
-            $resolved = $this->resolve($id, $new);
+            $resolved = $this->resolve($id, $arguments, $new);
 
             $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
 
@@ -358,7 +418,20 @@ class Container implements ContainerInterface
             }
         }
 
-        throw new NotFoundException(sprintf('Alias (%s) is not being managed by the container or delegates', $id));
+        if (class_exists($id)) {
+            $this->addRawService($id, [
+                'class' => $id,
+                'shared' => $this->getSettingsByName(DefinitionSettings::class)->isAutoShared()
+            ]);
+
+            $resolved = (true === $new) ? $this->definitions->resolveNew($id) : $this->definitions->resolve($id);
+
+            $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
+
+            return $this->inflectors->inflect($resolved);
+        }
+
+        throw new NotFoundException(sprintf('Service (%s) is not being managed by the container or delegates', $id));
     }
 
     private function profilingEventsRegister(): void
