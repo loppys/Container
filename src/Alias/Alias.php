@@ -11,9 +11,22 @@ class Alias implements ArrayAccess, JsonSerializable
 {
     public function __construct(
         protected string $name,
+        protected string $aliasName,
         protected string $groupKey,
         protected int $priority
     ) {
+    }
+
+    public function getAliasName(): string
+    {
+        return $this->aliasName;
+    }
+
+    public function setAliasName(string $aliasName): static
+    {
+        $this->aliasName = $aliasName;
+
+        return $this;
     }
 
     public function setPriority(int $priority): static
@@ -42,6 +55,7 @@ class Alias implements ArrayAccess, JsonSerializable
     {
         return [
             'name' => $this->name,
+            'aliasName' => $this->aliasName,
             'groupKey' => $this->groupKey,
             'priority' => $this->priority,
         ];
@@ -49,12 +63,13 @@ class Alias implements ArrayAccess, JsonSerializable
 
     public static function fromArray(array $data): self
     {
-        if (!isset($data['name'], $data['groupKey'], $data['priority'])) {
+        if (!isset($data['name'], $data['aliasName'], $data['groupKey'], $data['priority'])) {
             throw new InvalidArgumentException("Invalid data for Alias creation");
         }
 
         return new static(
             $data['name'],
+            $data['aliasName'],
             $data['groupKey'],
             (int)$data['priority']
         );
@@ -62,7 +77,7 @@ class Alias implements ArrayAccess, JsonSerializable
 
     public function offsetExists(mixed $offset): bool
     {
-        return in_array($offset, ['name', 'groupKey', 'priority'], true);
+        return in_array($offset, ['name', 'aliasName', 'groupKey', 'priority'], true);
     }
 
     public function offsetGet(mixed $offset): mixed

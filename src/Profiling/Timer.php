@@ -16,12 +16,16 @@ class Timer implements TimerInterface
 
     private array $log = [];
 
-    private bool $logToFile = true;
+    private bool $logToFile = false;
 
     private string $logFilePath = __DIR__ . '/timer.log';
 
-    public function __construct(array $logSettings)
+    public function __construct(string $path = '')
     {
+        if (!empty($path)) {
+            $this->logToFile = true;
+            $this->logFilePath = $path;
+        }
     }
 
     public function setLogToFile(bool $enable): static
@@ -52,7 +56,9 @@ class Timer implements TimerInterface
 
         $this->log[] = $entry;
 
-        $this->logToFile($entry);
+        if ($this->logToFile) {
+            $this->logToFile($entry);
+        }
 
         $newPoint = new TimerPoint($point, $data);
 
@@ -81,7 +87,9 @@ class Timer implements TimerInterface
         ];
         $this->log[] = $entry;
 
-        $this->logToFile($entry);
+        if ($this->logToFile) {
+            $this->logToFile($entry);
+        }
 
         while (!empty($this->stack)) {
             $current = array_pop($this->stack);
@@ -90,6 +98,10 @@ class Timer implements TimerInterface
             if ($current->name === $point) {
                 break;
             }
+        }
+
+        if (!$this->logToFile) {
+            $this->printLog();
         }
 
         return $this;

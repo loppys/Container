@@ -2,6 +2,7 @@
 
 namespace Vengine\Libs\interfaces;
 
+
 interface DefinitionInterface extends ContainerAwareInterface
 {
     public function getId(): string;
@@ -17,9 +18,11 @@ interface DefinitionInterface extends ContainerAwareInterface
     public function getConcrete(): mixed;
     public function hasSharedTag(string $tag): bool;
     public function isShared(): bool;
-    public function resolve(): mixed;
-    public function resolveNew(): mixed;
+    public function resolve(array $arguments = []): mixed;
+    public function resolveNew(array $arguments = []): mixed;
     public function setConcrete(mixed $concrete): DefinitionInterface;
     public function setShared(bool $shared): DefinitionInterface;
     public function fetchConstructor(): void;
+    public function replaceKeys(array $values): DefinitionInterface;
+    public function clearResolved(): void;
 }

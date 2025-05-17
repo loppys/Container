@@ -2,10 +2,15 @@
 
 namespace Vengine\Libs;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Vengine\Libs\Exceptions\CircularServiceLoadingException;
+use Vengine\Libs\Exceptions\ContainerException;
+use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\interfaces\InflectorInterface;
 use Vengine\Libs\traits\ArgumentResolverTrait;
 use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\interfaces\ArgumentResolverInterface;
 
 class Inflector implements InflectorInterface, ArgumentResolverInterface
 {
@@ -71,7 +76,10 @@ class Inflector implements InflectorInterface, ArgumentResolverInterface
     }
 
     /**
-     * @throws CircularServiceLoadingException
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      */
     public function inflect(object $object): void
     {

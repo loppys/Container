@@ -4,10 +4,14 @@ namespace Vengine\Libs\ServiceCollectors;
 
 use Vengine\Libs\Container;
 use Vengine\Libs\Exceptions\ContainerException;
+use Vengine\Libs\interfaces\DefinitionInterface;
 use Vengine\Libs\interfaces\ServiceCollectorInterface;
 
 abstract class AbstractServiceCollector implements ServiceCollectorInterface
 {
+    /**
+     * @var DefinitionInterface[]
+     */
     protected array $definitions = [];
 
     /**

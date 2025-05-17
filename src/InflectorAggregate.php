@@ -2,7 +2,10 @@
 
 namespace Vengine\Libs;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Vengine\Libs\Exceptions\ContainerException;
+use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\interfaces\InflectorAggregateInterface;
 use Vengine\Libs\traits\ContainerAwareTrait;
 use Generator;
@@ -25,7 +28,10 @@ class InflectorAggregate implements InflectorAggregateInterface
     }
 
     /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      * @throws ContainerException
+     * @throws ContainerExceptionInterface
      */
     public function inflect($object)
     {

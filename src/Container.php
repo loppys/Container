@@ -3,20 +3,22 @@
 namespace Vengine\Libs;
 
 use Psr\Container\NotFoundExceptionInterface;
-use ReflectionMethod;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 use Vengine\Libs\Arguments\LinkServiceArgument;
 use Vengine\Libs\config\ConfigResolver;
 use Vengine\Libs\Definitions\Definition;
 use Vengine\Libs\Definitions\DefinitionAggregate;
 use Vengine\Libs\Exceptions\ContainerException;
 use Vengine\Libs\Exceptions\NotFoundException;
+use Vengine\Libs\interfaces\CollectorContainerInterface;
 use Vengine\Libs\interfaces\ConfigureInterface;
 use Vengine\Libs\interfaces\ContainerAwareInterface;
 use Vengine\Libs\interfaces\ContainerInterface;
 use Vengine\Libs\interfaces\DefinitionAggregateInterface;
 use Vengine\Libs\interfaces\InflectorAggregateInterface;
 use Vengine\Libs\interfaces\InflectorInterface;
+use Vengine\Libs\interfaces\PackageInterface;
 use Vengine\Libs\interfaces\ServiceCollectorInterface;
 use Vengine\Libs\interfaces\ServiceProviderAggregateInterface;
 use Vengine\Libs\Profiling\ProfilingEventHandler;
@@ -25,9 +27,7 @@ use Vengine\Libs\Profiling\TimerInterface;
 use Vengine\Libs\Providers\ServiceProviderAggregate;
 use Vengine\Libs\interfaces\DefinitionInterface;
 use Vengine\Libs\interfaces\ServiceProviderInterface;
-use Vengine\Libs\References\Reference;
 use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
-use Vengine\Libs\Settings\CacheSettings;
 use Vengine\Libs\Settings\DefinitionSettings;
 use Vengine\Libs\Settings\PackageSettings;
 use Vengine\Libs\Settings\ProfilingSettings;
@@ -38,7 +38,7 @@ use Psr\SimpleCache\CacheInterface;
 /**
  * @template T
  */
-class Container implements ContainerInterface
+class Container implements ContainerInterface, CollectorContainerInterface
 {
     use SettingsAccessor;
     use ProfilingEventAwareTrait;
@@ -54,7 +54,9 @@ class Container implements ContainerInterface
     protected bool $defaultToShared = false;
     protected bool $defaultToOverwrite = false;
 
-    protected string $packageAbstractClass = '';
+    protected bool $packageEnabled = false;
+    /** @var PackageInterface[] */
+    protected array $packages;
 
     /**
      * @var ContainerInterface[]
@@ -65,6 +67,7 @@ class Container implements ContainerInterface
      * @throws ContainerException
      * @throws NotFoundException
      * @throws ContainerExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function __construct(
         ConfigureInterface $configure,
@@ -72,46 +75,40 @@ class Container implements ContainerInterface
         ?ServiceProviderAggregateInterface $providers = null,
         ?InflectorAggregateInterface $inflectors = null,
     ) {
-        $configure = (new ConfigResolver())->configResolve($configure);
-
         $this->definitions = $definitions ?? new DefinitionAggregate();
         $this->providers = $providers ?? new ServiceProviderAggregate();
         $this->inflectors = $inflectors ?? new InflectorAggregate();
-
-        $this->setProfilingEventHandler(new ProfilingEventHandler());
 
         $this->definitions->setContainer($this);
         $this->providers->setContainer($this);
         $this->inflectors->setContainer($this);
 
+        $this->setProfilingEventHandler(new ProfilingEventHandler());
+
+        $configure = (new ConfigResolver())->configResolve($configure);
+
         if (!empty($configure['settings'])) {
             $this->setSettings($configure['settings']);
         }
+
+        $definitionsSettings = $this->getSettingsByName(DefinitionSettings::class);
+        $packageSettings = $this->getSettingsByName(PackageSettings::class);
+        $profilingSettings = $this->getSettingsByName(ProfilingSettings::class);
 
         if (!empty($configure['services'])) {
             $this->collect(new ArrayServiceCollector($configure['services']));
         }
 
-        $definitionsSettings = $this->getSettingsByName(DefinitionSettings::class);
-        $cacheSettings = $this->getSettingsByName(CacheSettings::class);
-        $packageSettings = $this->getSettingsByName(PackageSettings::class);
-        $profilingSettings = $this->getSettingsByName(ProfilingSettings::class);
-
         $this->defaultToShared = $definitionsSettings->isAutoShared();
         $this->defaultToOverwrite = $definitionsSettings->isEnabledOverwrite();
 
-        $cacheDriver = $cacheSettings->getCacheDriver();
-        if ($cacheDriver) {
-            $this->cache = $this->get($cacheDriver);
-        }
-
         if ($packageSettings->isEnabled()) {
-            $this->packageAbstractClass = $packageSettings->getAbstractClass();
+            $this->packageEnabled = $packageSettings->isEnabled();
         }
 
         [$timerService, $args] = $profilingSettings->getTimerConfig();
 
-        $this->timer = $this->getWithArguments($timerService, $args, true);
+        $this->timer = $this->getWithArguments($timerService, $args);
 
         if ($profilingSettings->isEnabled()) {
             $this->profilingEventsRegister();
@@ -120,11 +117,45 @@ class Container implements ContainerInterface
         $this->profilingEventHandler->setEnabled($profilingSettings->isEnabled());
     }
 
+    public function callPackage(string $name): mixed
+    {
+        if ($this->packageEnabled === false) {
+            return null;
+        }
+
+        if (empty($this->packages[$name])) {
+            return null;
+        }
+
+        return $this->packages[$name]->call($this);
+    }
+
+    public function addPackage(PackageInterface $package): static
+    {
+        if ($this->packageEnabled === false) {
+            return $this;
+        }
+
+        foreach ($package->getCollectors() as $collector) {
+            $this->collect($collector);
+        }
+
+        $this->packages[$package->getName()] = $package;
+
+        return $this;
+    }
+
     public function collect(ServiceCollectorInterface $collector): void
     {
         $collector->collect($this);
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
     public function add(string $id, $concrete = null, bool $overwrite = false): DefinitionInterface
     {
         $toOverwrite = $this->defaultToOverwrite || $overwrite;
@@ -145,6 +176,13 @@ class Container implements ContainerInterface
      */
     public function addRawService(string $id, array $service): DefinitionInterface
     {
+        if (str_contains($id, '@@')) {
+            $id = mb_substr($id, 2);
+            $this->definitions->replace($id, $service);
+
+            return $this->definitions->getDefinition($id);
+        }
+
         $def = new Definition($id);
 
         $def->setContainer($this);
@@ -194,7 +232,9 @@ class Container implements ContainerInterface
             ->replaceProperties($properties)
             ->addRefs($refs)
             ->setShared(
-                $service['shared'] ?? $this->getSettingsByName(DefinitionSettings::class)->isAutoShared()
+                $service['shared']
+                    ?? $this->getSettingsByName(DefinitionSettings::class)?->isAutoShared()
+                    ?? false
             )
         ;
 
@@ -227,7 +267,17 @@ class Container implements ContainerInterface
     public function defaultToOverwrite(bool $overwrite = true): ContainerInterface
     {
         $this->defaultToOverwrite = $overwrite;
+
         return $this;
+    }
+
+    /**
+     * @throws NotFoundException
+     * @throws ContainerException
+     */
+    public function getDefinition(string $id): DefinitionInterface
+    {
+        return $this->definitions->getDefinition($id);
     }
 
     /**
@@ -373,7 +423,9 @@ class Container implements ContainerInterface
         $this->profilingEventHandler->handle(ProfilingEventTypeStorage::CREATE_SERVICE, $id);
 
         if ($this->definitions->has($id)) {
-            $resolved = (true === $new) ? $this->definitions->resolveNew($id) : $this->definitions->resolve($id);
+            $resolved = (true === $new)
+                ? $this->definitions->resolveNew($id, $arguments)
+                : $this->definitions->resolve($id, $arguments);
 
             $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
 
@@ -382,8 +434,8 @@ class Container implements ContainerInterface
 
         if ($this->definitions->hasSharedTag($id)) {
             $arrayOf = (true === $new)
-                ? $this->definitions->resolveTaggedNew($id)
-                : $this->definitions->resolveTagged($id);
+                ? $this->definitions->resolveTaggedNew($id, $arguments)
+                : $this->definitions->resolveTagged($id, $arguments);
 
             array_walk($arrayOf, function (&$resolved) {
                 $resolved = $this->inflectors->inflect($resolved);
@@ -410,7 +462,11 @@ class Container implements ContainerInterface
 
         foreach ($this->delegates as $delegate) {
             if ($delegate->has($id)) {
-                $resolved = $delegate->get($id);
+                if (!empty($arguments)) {
+                    $resolved = $delegate->getWithArguments($id, $arguments);
+                } else {
+                    $resolved = $delegate->get($id);
+                }
 
                 $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
 
@@ -421,10 +477,13 @@ class Container implements ContainerInterface
         if (class_exists($id)) {
             $this->addRawService($id, [
                 'class' => $id,
+                'arguments' => $arguments,
                 'shared' => $this->getSettingsByName(DefinitionSettings::class)->isAutoShared()
             ]);
 
-            $resolved = (true === $new) ? $this->definitions->resolveNew($id) : $this->definitions->resolve($id);
+            $resolved = (true === $new)
+                ? $this->definitions->resolveNew($id)
+                : $this->definitions->resolve($id);
 
             $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
 

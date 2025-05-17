@@ -6,7 +6,9 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionMethod;
+use ReflectionFunction;
+use Vengine\Libs\Alias\Alias;
+use Vengine\Libs\Alias\AliasCriteria;
 use Vengine\Libs\Arguments\LinkServiceArgument;
 use Vengine\Libs\Arguments\LiteralArgument;
 use Vengine\Libs\Exceptions\CircularServiceLoadingException;
@@ -16,8 +18,6 @@ use Vengine\Libs\interfaces\ArgumentInterface;
 use Vengine\Libs\interfaces\ContainerInterface;
 use Vengine\Libs\interfaces\DefinitionInterface;
 use Vengine\Libs\interfaces\LiteralArgumentInterface;
-use Vengine\Libs\interfaces\ReplaceDefinitionInterface;
-use Vengine\Libs\References\Reference;
 use Vengine\Libs\Storage\ArgumentTypeStorage;
 use Vengine\Libs\traits\ArgumentResolverTrait;
 use Vengine\Libs\traits\ContainerAwareTrait;
@@ -26,8 +26,6 @@ class Definition implements DefinitionInterface
 {
     use ArgumentResolverTrait;
     use ContainerAwareTrait;
-
-    private array $loaded = [];
 
     protected mixed $resolved = null;
     protected array $recursiveCheck = [];
@@ -41,7 +39,6 @@ class Definition implements DefinitionInterface
         protected array $arguments = [],
         protected array $methods = [],
         protected array $sharedTags = [],
-        /** @var Reference[] */
         protected array $refs = []
     ) {
         $this->setId($this->id);
@@ -65,6 +62,32 @@ class Definition implements DefinitionInterface
 
             $this->arguments = $this->reflectArguments($rfm, $this->arguments);
         }
+    }
+
+    public function replaceKeys(array $values): DefinitionInterface
+    {
+        $objProperties = get_object_vars($this);
+        foreach ($values as $key => $value) {
+            if (in_array($key, ['class', 'closure'], true)) {
+                $key = 'concrete';
+            }
+
+            if (!array_key_exists($key, $objProperties)) {
+                continue;
+            }
+
+            if ($key === 'concrete') {
+                $this->setConcrete($value);
+
+                continue;
+            }
+
+            $this->{$key} = $value;
+        }
+
+        $this->resolved = null;
+
+        return $this;
     }
 
     public function addSharedTags(array $tags): DefinitionInterface
@@ -202,16 +225,20 @@ class Definition implements DefinitionInterface
     }
 
     /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @throws ReflectionException
      * @throws CircularServiceLoadingException
      */
-    public function resolve(): mixed
+    public function resolve(array $arguments = []): mixed
     {
         if (null !== $this->resolved && $this->isShared()) {
             return $this->resolved;
         }
 
-        return $this->resolveNew();
+        return $this->resolveNew($arguments);
     }
 
     /**
@@ -222,12 +249,12 @@ class Definition implements DefinitionInterface
      * @throws ReflectionException
      * @throws CircularServiceLoadingException
      */
-    public function resolveNew(): mixed
+    public function resolveNew(array $arguments = []): mixed
     {
         $concrete = $this->concrete;
 
         if (is_callable($concrete)) {
-            $concrete = $this->resolveCallable($concrete);
+            $concrete = $this->resolveCallable($concrete, $arguments);
         }
 
         if ($concrete instanceof LiteralArgumentInterface) {
@@ -241,7 +268,7 @@ class Definition implements DefinitionInterface
         }
 
         if (is_string($concrete) && class_exists($concrete)) {
-            $concrete = $this->resolveClass($concrete);
+            $concrete = $this->resolveClass($concrete, $arguments);
         }
 
         if (is_object($concrete)) {
@@ -263,7 +290,11 @@ class Definition implements DefinitionInterface
 
         if (is_string($concrete) && $container instanceof ContainerInterface && $container->has($concrete)) {
             $this->recursiveCheck[] = $concrete;
-            $concrete = $container->get($concrete);
+            if (!empty($arguments)) {
+                $concrete = $container->getWithArguments($concrete, $arguments);
+            } else {
+                $concrete = $container->get($concrete);
+            }
         }
 
         $this->resolved = $concrete;
@@ -272,29 +303,75 @@ class Definition implements DefinitionInterface
     }
 
     /**
-     * @throws CircularServiceLoadingException
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
      */
-    protected function resolveCallable(callable $concrete): mixed
+    protected function resolveCallable(callable $concrete, array $arguments = []): mixed
     {
-        $resolved = $this->resolveArguments($this->arguments);
+        if (!empty($arguments)) {
+            $arguments = array_merge_recursive($this->arguments, $arguments);
+        } else {
+            $arguments = $this->arguments;
+        }
+
+        if (empty($arguments)) {
+            $arguments = $this->reflectArguments(new ReflectionFunction($concrete));
+        }
+
+        $resolved = $this->resolveArguments($arguments);
 
         return call_user_func_array($concrete, $resolved);
     }
 
     /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @throws ReflectionException
-     * @throws CircularServiceLoadingException
      */
-    protected function resolveClass(string $concrete): object
+    protected function resolveClass(string $concrete, array $arguments = []): object
     {
-        $resolved = $this->resolveArguments($this->arguments);
+        if (!empty($arguments)) {
+            $arguments = array_merge_recursive($this->arguments, $arguments);
+        } else {
+            $arguments = $this->arguments;
+        }
+
         $reflection = new ReflectionClass($concrete);
+        $construct = $reflection->getConstructor();
+        foreach ($arguments as $name => $argument) {
+            if (is_string($argument)) {
+                if (str_contains($argument, '@') && $this->getContainer()->has($argument)) {
+                    $argument = mb_substr($argument, 1);
+
+                    $arguments[$name] = $this->getContainer()->get($argument);
+
+                    continue;
+                }
+            }
+
+            if (is_null($construct)) {
+                continue;
+            }
+
+            $argument = $this->reflectArguments($construct, [$argument]);
+            $arguments[$name] = array_shift($argument);
+        }
+
+        $resolved = $this->resolveArguments($arguments);
 
         return $reflection->newInstanceArgs($resolved);
     }
 
     /**
-     * @throws CircularServiceLoadingException
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      */
     protected function invokeMethods(object $instance): object
     {
@@ -313,8 +390,8 @@ class Definition implements DefinitionInterface
         return ltrim($alias, "\\");
     }
 
-    public function clearLoaded(): void
+    public function clearResolved(): void
     {
-        $this->loaded = [];
+        $this->resolved = null;
     }
 }

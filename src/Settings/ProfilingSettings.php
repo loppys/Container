@@ -21,7 +21,7 @@ class ProfilingSettings extends AbstractSettings
         return [
             $timerService,
             [
-                'logs' => $this->getOption('logs', [])
+                'logPath' => $this->getOption('logPath', '')
             ]
         ];
     }

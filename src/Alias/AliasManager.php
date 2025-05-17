@@ -65,13 +65,25 @@ class AliasManager implements Iterator
     public function getAlias(AliasCriteria $criteria): ?Alias
     {
         $group = $criteria->getGroup();
-        $name = $criteria->getName();
+        $id = $criteria->getId();
+        $aliasName = $criteria->getAliasName();
         $priorityCriteria = $criteria->getPriority();
+
+        if (!empty($aliasName)) {
+            foreach ($this->aliasMap as $alias) {
+                if (
+                    $alias->getAliasName() === $aliasName
+                    && $this->processSortByPriority($alias->getPriority(), $priorityCriteria)
+                ) {
+                    return $alias;
+                }
+            }
+        }
 
         if (!empty($group)) {
             foreach ($this->groupAliases[$group] as $groupAlias) {
                 if (
-                    $groupAlias->getName() === $criteria->getName()
+                    $groupAlias->getName() === $criteria->getId()
                     || $this->processSortByPriority($groupAlias->getPriority(), $priorityCriteria)
                 ) {
                     return $groupAlias;
@@ -81,10 +93,10 @@ class AliasManager implements Iterator
             $group = null;
         }
 
-        if (empty($group) && !empty($name)) {
+        if (empty($group) && !empty($id)) {
             foreach ($this->aliasMap as $alias) {
                 if (
-                    $alias->getName() === $criteria->getName()
+                    $alias->getName() === $criteria->getId()
                     || $this->processSortByPriority($alias->getPriority(), $priorityCriteria)
                 ) {
                     return $alias;

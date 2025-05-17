@@ -10,9 +10,4 @@ class PackageSettings extends AbstractSettings
     {
         return $this->getOption('enabled', true);
     }
-
-    public function getAbstractClass(): string
-    {
-        return $this->getOption('abstract.class', '');
-    }
 }

@@ -32,12 +32,17 @@ class TestDefinition extends Definition
     }
 }
 
+interface TestInflectorInterface
+{
+
+}
+
 class TestDefClass
 {
     public string $test = '888';
 }
 
-class TestClass
+class TestClass implements TestInflectorInterface
 {
     protected TestDefClass $testDefClass;
 

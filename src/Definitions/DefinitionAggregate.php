@@ -15,11 +15,28 @@ class DefinitionAggregate implements DefinitionAggregateInterface
 {
     use ContainerAwareTrait;
 
-    public function __construct(protected array $definitions = [])
-    {
+    public function __construct(
+        /** @var DefinitionInterface[] */
+        protected array $definitions = []
+    ) {
         $this->definitions = array_filter($this->definitions, static function ($definition) {
             return ($definition instanceof DefinitionInterface);
         });
+    }
+
+    /**
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
+    public function replace(string $id, $newDefinition): void
+    {
+        if ($this->has($id)) {
+            $def = $this->getDefinition($id);
+
+            $def->replaceKeys($newDefinition);
+        }
     }
 
     /**
@@ -105,30 +122,30 @@ class DefinitionAggregate implements DefinitionAggregateInterface
      * @throws NotFoundException
      * @throws ContainerException
      */
-    public function resolve(string $id): mixed
+    public function resolve(string $id, array $arguments = []): mixed
     {
-        return $this->getDefinition($id)->resolve();
+        return $this->getDefinition($id)->resolve($arguments);
     }
 
     /**
      * @throws NotFoundException
      * @throws ContainerException
      */
-    public function resolveNew(string $id): mixed
+    public function resolveNew(string $id, array $arguments = []): mixed
     {
-        return $this->getDefinition($id)->resolveNew();
+        return $this->getDefinition($id)->resolveNew($arguments);
     }
 
     /**
      * @throws ContainerException
      */
-    public function resolveTagged(string $tag): array
+    public function resolveTagged(string $tag, array $arguments = []): array
     {
         $arrayOf = [];
 
         foreach ($this as $definition) {
             if ($definition->hasTag($tag)) {
-                $arrayOf[] = $definition->setContainer($this->getContainer())->resolve();
+                $arrayOf[] = $definition->setContainer($this->getContainer())->resolve($arguments);
             }
         }
 
@@ -138,13 +155,13 @@ class DefinitionAggregate implements DefinitionAggregateInterface
     /**
      * @throws ContainerException
      */
-    public function resolveTaggedNew(string $tag): array
+    public function resolveTaggedNew(string $tag, array $arguments = []): array
     {
         $arrayOf = [];
 
         foreach ($this as $definition) {
             if ($definition->hasSharedTag($tag)) {
-                $arrayOf[] = $definition->setContainer($this->getContainer())->resolveNew();
+                $arrayOf[] = $definition->setContainer($this->getContainer())->resolveNew($arguments);
             }
         }
 

@@ -2,16 +2,18 @@
 
 namespace Vengine\Libs\Packages;
 
+use Vengine\Libs\interfaces\ContainerInterface;
+use Vengine\Libs\interfaces\PackageInterface;
 use Vengine\Libs\interfaces\ServiceCollectorInterface;
 
-abstract class AbstractPackage
+abstract class AbstractPackage implements PackageInterface
 {
-    public function __construct(
-        protected string $name,
-        /** @var ServiceCollectorInterface[] $collectors */
-        protected array $collectors = []
-    ) {
-    }
+    protected string $name;
+
+    /** @var ServiceCollectorInterface[] $collectors */
+    protected array $collectors = [];
+
+    abstract public function call(ContainerInterface $container): mixed;
 
     public function addServiceCollector(ServiceCollectorInterface $serviceCollector): static
     {

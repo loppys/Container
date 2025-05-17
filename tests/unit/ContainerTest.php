@@ -8,6 +8,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TestClass;
 use TestDefClass;
+use Vengine\Cache\Drivers\AbstractDriver;
 use Vengine\Libs\Exceptions\ContainerException;
 use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
@@ -17,6 +18,36 @@ use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
  */
 class ContainerTest extends TestCase
 {
+    /**
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     */
+    public function testReplaceDefinition(): void
+    {
+        $di = new TestContainer();
+
+        $di->collect(new ArrayServiceCollector([
+            'test.replace' => [
+                'class' => TestClass::class
+            ],
+            TestDefClass::class => [
+                'class' => TestDefClass::class,
+            ],
+            '@@' . TestDefClass::class => [
+                'closure' => static function () {
+                    $t = new TestDefClass();
+                    $t->test = '666';
+
+                    return $t;
+                }
+            ],
+        ]));
+
+        /** @var TestClass $test */
+        $test = $di->get('test.replace');
+        $this->assertEquals('666', $test->getTestProperty());
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
@@ -59,6 +90,25 @@ class ContainerTest extends TestCase
         /** @var TestClass $testNew */
         $testNew = $testContainer->getNew('test192');
         $this->assertEquals('192', $testNew->getTestProperty());
+
+        $testContainer->add('test.def', static function (?string $replace = null) {
+            $def = new TestDefClass();
+            if (!is_null($replace)) {
+                $def->test = $replace;
+            } else {
+                $def->test = '111';
+            }
+
+            return $def;
+        });
+
+        /** @var TestDefClass $testDef */
+        $testDef = $testContainer->get('test.def');
+        $this->assertTrue($testDef->test === '111');
+
+        /** @var TestDefClass $testDef */
+        $testDef = $testContainer->getNewWithArguments('test.def', ['replace' => '666']);
+        $this->assertEquals('666', $testDef->test);
     }
 
     /**
