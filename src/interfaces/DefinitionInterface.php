@@ -2,7 +2,6 @@
 
 namespace Vengine\Libs\interfaces;
 
-
 interface DefinitionInterface extends ContainerAwareInterface
 {
     public function getId(): string;
