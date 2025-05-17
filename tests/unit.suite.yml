@@ -1,0 +1,6 @@
+class_name: UnitTester
+bootstrap: _bootstrap.php
+error_level: "E_ALL"
+modules:
+  enabled:
+    - Asserts
