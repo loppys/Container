@@ -5,7 +5,7 @@ use Vengine\Libs\Definitions\DefinitionAggregate;
 use Vengine\Libs\config\Configure;
 use Vengine\Libs\Container;
 
-class ContainerTest extends Container
+class TestContainer extends Container
 {
     public function __construct()
     {

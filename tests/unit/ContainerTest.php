@@ -3,7 +3,7 @@
 namespace unit;
 
 use PHPUnit\Framework\TestCase;
-use ContainerTest;
+use TestContainer;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TestClass;
@@ -15,7 +15,7 @@ use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
 /**
  * @group definition
  */
-class DefinitionTest extends TestCase
+class ContainerTest extends TestCase
 {
     /**
      * @throws NotFoundExceptionInterface
@@ -25,12 +25,12 @@ class DefinitionTest extends TestCase
      */
     public function testCreateServices(): void
     {
-        $testContainer = new ContainerTest();
+        $testContainer = new TestContainer();
 
         $testClass = $testContainer->get(TestClass::class);
         $this->assertTrue($testClass instanceof TestClass);
 
-        $testContainer = new ContainerTest();
+        $testContainer = new TestContainer();
 
         $testDefClass = $testContainer->get(TestDefClass::class);
         $this->assertTrue($testDefClass instanceof TestDefClass);
@@ -68,7 +68,7 @@ class DefinitionTest extends TestCase
      */
     public function testChangeProperties(): void
     {
-        $testContainer = new ContainerTest();
+        $testContainer = new TestContainer();
 
         $rawServices = [
             'test.first' => [
