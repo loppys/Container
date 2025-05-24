@@ -1,9 +1,9 @@
 <?php
 
-use Vengine\Libs\interfaces\SingletonInterface;
-use Vengine\Libs\Storage\ContainerSignStorage;
-use Vengine\Libs\interfaces\ReplaceDefinitionInterface;
-use Vengine\Libs\Settings\Storage\SettingsStorage;
+use Vengine\Libs\DI\interfaces\SingletonInterface;
+use Vengine\Libs\DI\Storage\ContainerSignStorage;
+use Vengine\Libs\DI\interfaces\ReplaceDefinitionInterface;
+use Vengine\Libs\DI\Settings\Storage\SettingsStorage;
 
 return [
     'services' => __DIR__ . '/services.config.php',

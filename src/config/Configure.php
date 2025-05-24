@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\config;
+namespace Vengine\Libs\DI\config;
 
-use Vengine\Libs\interfaces\ConfigureInterface;
+use Vengine\Libs\DI\interfaces\ConfigureInterface;
 
 class Configure implements ConfigureInterface
 {

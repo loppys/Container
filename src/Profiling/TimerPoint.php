@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\Profiling;
+namespace Vengine\Libs\DI\Profiling;
 
 class TimerPoint
 {

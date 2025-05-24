@@ -1,9 +1,9 @@
 <?php
 
-namespace Vengine\Libs\interfaces;
+namespace Vengine\Libs\DI\interfaces;
 
-use Vengine\Libs\Container;
-use Vengine\Libs\Exceptions\CircularServiceLoadingException;
+use Vengine\Libs\DI\Container;
+use Vengine\Libs\DI\Exceptions\CircularServiceLoadingException;
 
 interface ServiceBuilderInterface
 {

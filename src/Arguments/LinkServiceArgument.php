@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\Arguments;
+namespace Vengine\Libs\DI\Arguments;
 
-use Vengine\Libs\interfaces\LinkServiceArgumentInterface;
+use Vengine\Libs\DI\interfaces\LinkServiceArgumentInterface;
 
 class LinkServiceArgument extends AbstractBaseArgument implements LinkServiceArgumentInterface
 {

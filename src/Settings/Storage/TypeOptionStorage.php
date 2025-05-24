@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\Settings\Storage;
+namespace Vengine\Libs\DI\Settings\Storage;
 
 class TypeOptionStorage
 {

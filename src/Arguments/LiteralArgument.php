@@ -1,10 +1,10 @@
 <?php
 
-namespace Vengine\Libs\Arguments;
+namespace Vengine\Libs\DI\Arguments;
 
 use InvalidArgumentException;
-use Vengine\Libs\interfaces\LiteralArgumentInterface;
-use Vengine\Libs\Storage\ArgumentTypeStorage;
+use Vengine\Libs\DI\interfaces\LiteralArgumentInterface;
+use Vengine\Libs\DI\Storage\ArgumentTypeStorage;
 
 class LiteralArgument extends AbstractBaseArgument implements LiteralArgumentInterface
 {

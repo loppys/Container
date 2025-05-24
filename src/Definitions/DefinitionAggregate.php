@@ -1,13 +1,13 @@
 <?php
 
-namespace Vengine\Libs\Definitions;
+namespace Vengine\Libs\DI\Definitions;
 
 use Generator;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\interfaces\DefinitionAggregateInterface;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\interfaces\DefinitionAggregateInterface;
 use Vengine\Libs\interfaces\DefinitionInterface;
 use Vengine\Libs\traits\ContainerAwareTrait;
 

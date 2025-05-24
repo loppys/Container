@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\Exceptions;
+namespace Vengine\Libs\DI\Exceptions;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;

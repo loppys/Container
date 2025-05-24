@@ -1,10 +1,10 @@
 <?php
 
-namespace Vengine\Libs\Packages;
+namespace Vengine\Libs\DI\Packages;
 
-use Vengine\Libs\interfaces\ContainerInterface;
-use Vengine\Libs\interfaces\PackageInterface;
-use Vengine\Libs\interfaces\ServiceCollectorInterface;
+use Vengine\Libs\DI\interfaces\ContainerInterface;
+use Vengine\Libs\DI\interfaces\PackageInterface;
+use Vengine\Libs\DI\interfaces\ServiceCollectorInterface;
 
 abstract class AbstractPackage implements PackageInterface
 {

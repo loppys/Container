@@ -1,9 +1,9 @@
 <?php
 
-namespace Vengine\Libs\Providers;
+namespace Vengine\Libs\DI\Providers;
 
-use Vengine\Libs\interfaces\ServiceProviderInterface;
-use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\interfaces\ServiceProviderInterface;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
 
 abstract class AbstractServiceProvider implements ServiceProviderInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\ServiceCollectors;
+namespace Vengine\Libs\DI\ServiceCollectors;
 
 class ArrayServiceCollector extends ConfigFileServiceCollector
 {

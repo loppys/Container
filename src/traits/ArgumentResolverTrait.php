@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\traits;
+namespace Vengine\Libs\DI\traits;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -8,17 +8,17 @@ use ReflectionFunctionAbstract;
 use ReflectionNamedType;
 use ReflectionException;
 use ReflectionClass;
-use Vengine\Libs\Arguments\DefaultValueArgument;
-use Vengine\Libs\Arguments\LiteralArgument;
-use Vengine\Libs\Arguments\ResolvableArgument;
-use Vengine\Libs\Container;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\interfaces\ArgumentInterface;
-use Vengine\Libs\interfaces\ContainerInterface;
-use Vengine\Libs\interfaces\DefaultValueInterface;
-use Vengine\Libs\interfaces\LinkServiceArgumentInterface;
-use Vengine\Libs\interfaces\LiteralArgumentInterface;
+use Vengine\Libs\DI\Arguments\DefaultValueArgument;
+use Vengine\Libs\DI\Arguments\LiteralArgument;
+use Vengine\Libs\DI\Arguments\ResolvableArgument;
+use Vengine\Libs\DI\Container;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\interfaces\ArgumentInterface;
+use Vengine\Libs\DI\interfaces\ContainerInterface;
+use Vengine\Libs\DI\interfaces\DefaultValueInterface;
+use Vengine\Libs\DI\interfaces\LinkServiceArgumentInterface;
+use Vengine\Libs\DI\interfaces\LiteralArgumentInterface;
 
 trait ArgumentResolverTrait
 {

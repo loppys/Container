@@ -1,12 +1,12 @@
 <?php
 
-namespace Vengine\Libs\Providers;
+namespace Vengine\Libs\DI\Providers;
 
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\interfaces\BootableServiceProviderInterface;
-use Vengine\Libs\interfaces\ServiceProviderAggregateInterface;
-use Vengine\Libs\interfaces\ServiceProviderInterface;
-use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\interfaces\BootableServiceProviderInterface;
+use Vengine\Libs\DI\interfaces\ServiceProviderAggregateInterface;
+use Vengine\Libs\DI\interfaces\ServiceProviderInterface;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
 use Generator;
 
 class ServiceProviderAggregate implements ServiceProviderAggregateInterface

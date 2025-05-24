@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\Arguments;
+namespace Vengine\Libs\DI\Arguments;
 
-use Vengine\Libs\interfaces\DefaultValueInterface;
+use Vengine\Libs\DI\interfaces\DefaultValueInterface;
 
 class DefaultValueArgument extends ResolvableArgument implements DefaultValueInterface
 {

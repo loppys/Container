@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\Alias;
+namespace Vengine\Libs\DI\Alias;
 
 use Iterator;
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace Vengine\Libs\ServiceCollectors;
+namespace Vengine\Libs\DI\ServiceCollectors;
 
 use Closure;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Vengine\Libs\Container;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\Settings\DefinitionSettings;
+use Vengine\Libs\DI\Container;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\Settings\DefinitionSettings;
 
 class ConfigFileServiceCollector extends AbstractServiceCollector
 {

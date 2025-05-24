@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\Settings;
+namespace Vengine\Libs\DI\Settings;
 
 class ProfilingSettings extends AbstractSettings
 {

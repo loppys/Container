@@ -1,10 +1,10 @@
 <?php
 
-namespace Vengine\Libs\Settings\Storage;
+namespace Vengine\Libs\DI\Settings\Storage;
 
-use Vengine\Libs\Settings\DefinitionSettings;
-use Vengine\Libs\Settings\PackageSettings;
-use Vengine\Libs\Settings\ProfilingSettings;
+use Vengine\Libs\DI\Settings\DefinitionSettings;
+use Vengine\Libs\DI\Settings\PackageSettings;
+use Vengine\Libs\DI\Settings\ProfilingSettings;
 
 class SettingsStorage
 {

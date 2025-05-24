@@ -1,9 +1,9 @@
 <?php
 
-namespace Vengine\Libs\Arguments\LiteralArguments;
+namespace Vengine\Libs\DI\Arguments\LiteralArguments;
 
-use Vengine\Libs\Arguments\LiteralArgument;
-use Vengine\Libs\Storage\ArgumentTypeStorage;
+use Vengine\Libs\DI\Arguments\LiteralArgument;
+use Vengine\Libs\DI\Storage\ArgumentTypeStorage;
 
 class ObjectArgument extends LiteralArgument
 {

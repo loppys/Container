@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\Arguments;
+namespace Vengine\Libs\DI\Arguments;
 
-use Vengine\Libs\interfaces\ResolvableArgumentInterface;
+use Vengine\Libs\DI\interfaces\ResolvableArgumentInterface;
 
 class ResolvableArgument implements ResolvableArgumentInterface
 {

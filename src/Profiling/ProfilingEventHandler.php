@@ -1,9 +1,9 @@
 <?php
 
-namespace Vengine\Libs\Profiling;
+namespace Vengine\Libs\DI\Profiling;
 
-use Vengine\Libs\traits\ArgumentResolverTrait;
-use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\traits\ArgumentResolverTrait;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
 use Closure;
 
 class ProfilingEventHandler

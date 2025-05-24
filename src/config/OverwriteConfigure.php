@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\config;
+namespace Vengine\Libs\DI\config;
 
 class OverwriteConfigure extends Configure
 {

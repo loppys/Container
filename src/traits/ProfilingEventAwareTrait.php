@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\traits;
+namespace Vengine\Libs\DI\traits;
 
-use Vengine\Libs\Profiling\ProfilingEventHandler;
+use Vengine\Libs\DI\Profiling\ProfilingEventHandler;
 
 trait ProfilingEventAwareTrait
 {

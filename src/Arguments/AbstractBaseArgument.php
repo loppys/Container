@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\Arguments;
+namespace Vengine\Libs\DI\Arguments;
 
-use Vengine\Libs\interfaces\ArgumentInterface;
+use Vengine\Libs\DI\interfaces\ArgumentInterface;
 
 abstract class AbstractBaseArgument implements ArgumentInterface
 {

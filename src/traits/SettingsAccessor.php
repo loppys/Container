@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\traits;
+namespace Vengine\Libs\DI\traits;
 
-use Vengine\Libs\interfaces\ContainerSettingsInterface;
+use Vengine\Libs\DI\interfaces\ContainerSettingsInterface;
 
 /**
  * @template T2

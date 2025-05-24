@@ -4,7 +4,7 @@
   "type": "library",
   "autoload": {
     "psr-4": {
-      "Vengine\\Libs\\": "src/"
+      "Vengine\\Libs\\DI\\": "src/"
     }
   },
   "require": {

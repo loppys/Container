@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\interfaces;
+namespace Vengine\Libs\DI\interfaces;
 
 interface ContainerPackageInterface
 {

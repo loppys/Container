@@ -1,11 +1,11 @@
 <?php
 
-namespace Vengine\Libs\traits;
+namespace Vengine\Libs\DI\traits;
 
-use Vengine\Libs\Container;
-use Vengine\Libs\interfaces\ContainerInterface;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\interfaces\ContainerAwareInterface;
+use Vengine\Libs\DI\Container;
+use Vengine\Libs\DI\interfaces\ContainerInterface;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\interfaces\ContainerAwareInterface;
 
 /**
  * @template T

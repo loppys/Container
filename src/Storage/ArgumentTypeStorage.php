@@ -1,6 +1,6 @@
 <?php
 
-namespace Vengine\Libs\Storage;
+namespace Vengine\Libs\DI\Storage;
 
 use ReflectionClass;
 

@@ -1,16 +1,15 @@
 <?php
 
-namespace Vengine\Libs;
+namespace Vengine\Libs\DI;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Vengine\Libs\Exceptions\CircularServiceLoadingException;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\interfaces\InflectorInterface;
-use Vengine\Libs\traits\ArgumentResolverTrait;
-use Vengine\Libs\traits\ContainerAwareTrait;
-use Vengine\Libs\interfaces\ArgumentResolverInterface;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\interfaces\InflectorInterface;
+use Vengine\Libs\DI\traits\ArgumentResolverTrait;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\interfaces\ArgumentResolverInterface;
 
 class Inflector implements InflectorInterface, ArgumentResolverInterface
 {

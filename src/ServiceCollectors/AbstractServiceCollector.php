@@ -1,11 +1,11 @@
 <?php
 
-namespace Vengine\Libs\ServiceCollectors;
+namespace Vengine\Libs\DI\ServiceCollectors;
 
-use Vengine\Libs\Container;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\interfaces\DefinitionInterface;
-use Vengine\Libs\interfaces\ServiceCollectorInterface;
+use Vengine\Libs\DI\Container;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\interfaces\DefinitionInterface;
+use Vengine\Libs\DI\interfaces\ServiceCollectorInterface;
 
 abstract class AbstractServiceCollector implements ServiceCollectorInterface
 {

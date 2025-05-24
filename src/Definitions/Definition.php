@@ -1,24 +1,24 @@
 <?php
 
-namespace Vengine\Libs\Definitions;
+namespace Vengine\Libs\DI\Definitions;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
-use Vengine\Libs\Alias\Alias;
-use Vengine\Libs\Alias\AliasCriteria;
-use Vengine\Libs\Arguments\LinkServiceArgument;
-use Vengine\Libs\Arguments\LiteralArgument;
-use Vengine\Libs\Exceptions\CircularServiceLoadingException;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\interfaces\ArgumentInterface;
-use Vengine\Libs\interfaces\ContainerInterface;
-use Vengine\Libs\interfaces\DefinitionInterface;
-use Vengine\Libs\interfaces\LiteralArgumentInterface;
-use Vengine\Libs\Storage\ArgumentTypeStorage;
+use Vengine\Libs\DI\Alias\Alias;
+use Vengine\Libs\DI\Alias\AliasCriteria;
+use Vengine\Libs\DI\Arguments\LinkServiceArgument;
+use Vengine\Libs\DI\Arguments\LiteralArgument;
+use Vengine\Libs\DI\Exceptions\CircularServiceLoadingException;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\interfaces\ArgumentInterface;
+use Vengine\Libs\DI\interfaces\ContainerInterface;
+use Vengine\Libs\DI\interfaces\DefinitionInterface;
+use Vengine\Libs\DI\interfaces\LiteralArgumentInterface;
+use Vengine\Libs\DI\Storage\ArgumentTypeStorage;
 use Vengine\Libs\traits\ArgumentResolverTrait;
 use Vengine\Libs\traits\ContainerAwareTrait;
 

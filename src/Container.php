@@ -1,38 +1,37 @@
 <?php
 
-namespace Vengine\Libs;
+namespace Vengine\Libs\DI;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Container\ContainerExceptionInterface;
-use Psr\SimpleCache\InvalidArgumentException;
-use Vengine\Libs\Arguments\LinkServiceArgument;
-use Vengine\Libs\config\ConfigResolver;
-use Vengine\Libs\Definitions\Definition;
-use Vengine\Libs\Definitions\DefinitionAggregate;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\interfaces\CollectorContainerInterface;
-use Vengine\Libs\interfaces\ConfigureInterface;
-use Vengine\Libs\interfaces\ContainerAwareInterface;
-use Vengine\Libs\interfaces\ContainerInterface;
-use Vengine\Libs\interfaces\DefinitionAggregateInterface;
-use Vengine\Libs\interfaces\InflectorAggregateInterface;
-use Vengine\Libs\interfaces\InflectorInterface;
-use Vengine\Libs\interfaces\PackageInterface;
-use Vengine\Libs\interfaces\ServiceCollectorInterface;
-use Vengine\Libs\interfaces\ServiceProviderAggregateInterface;
-use Vengine\Libs\Profiling\ProfilingEventHandler;
-use Vengine\Libs\Profiling\ProfilingEventTypeStorage;
-use Vengine\Libs\Profiling\TimerInterface;
-use Vengine\Libs\Providers\ServiceProviderAggregate;
-use Vengine\Libs\interfaces\DefinitionInterface;
-use Vengine\Libs\interfaces\ServiceProviderInterface;
-use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
-use Vengine\Libs\Settings\DefinitionSettings;
-use Vengine\Libs\Settings\PackageSettings;
-use Vengine\Libs\Settings\ProfilingSettings;
-use Vengine\Libs\traits\ProfilingEventAwareTrait;
-use Vengine\Libs\traits\SettingsAccessor;
+use Vengine\Libs\DI\Arguments\LinkServiceArgument;
+use Vengine\Libs\DI\config\ConfigResolver;
+use Vengine\Libs\DI\Definitions\Definition;
+use Vengine\Libs\DI\Definitions\DefinitionAggregate;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\interfaces\CollectorContainerInterface;
+use Vengine\Libs\DI\interfaces\ConfigureInterface;
+use Vengine\Libs\DI\interfaces\ContainerAwareInterface;
+use Vengine\Libs\DI\interfaces\ContainerInterface;
+use Vengine\Libs\DI\interfaces\DefinitionAggregateInterface;
+use Vengine\Libs\DI\interfaces\InflectorAggregateInterface;
+use Vengine\Libs\DI\interfaces\InflectorInterface;
+use Vengine\Libs\DI\interfaces\PackageInterface;
+use Vengine\Libs\DI\interfaces\ServiceCollectorInterface;
+use Vengine\Libs\DI\interfaces\ServiceProviderAggregateInterface;
+use Vengine\Libs\DI\Profiling\ProfilingEventHandler;
+use Vengine\Libs\DI\Profiling\ProfilingEventTypeStorage;
+use Vengine\Libs\DI\Profiling\TimerInterface;
+use Vengine\Libs\DI\Providers\ServiceProviderAggregate;
+use Vengine\Libs\DI\interfaces\DefinitionInterface;
+use Vengine\Libs\DI\interfaces\ServiceProviderInterface;
+use Vengine\Libs\DI\ServiceCollectors\ArrayServiceCollector;
+use Vengine\Libs\DI\Settings\DefinitionSettings;
+use Vengine\Libs\DI\Settings\PackageSettings;
+use Vengine\Libs\DI\Settings\ProfilingSettings;
+use Vengine\Libs\DI\traits\ProfilingEventAwareTrait;
+use Vengine\Libs\DI\traits\SettingsAccessor;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -67,7 +66,6 @@ class Container implements ContainerInterface, CollectorContainerInterface
      * @throws ContainerException
      * @throws NotFoundException
      * @throws ContainerExceptionInterface
-     * @throws InvalidArgumentException
      */
     public function __construct(
         ConfigureInterface $configure,

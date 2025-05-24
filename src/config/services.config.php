@@ -1,6 +1,6 @@
 <?php
 
-use Vengine\Libs\Profiling\Timer;
+use Vengine\Libs\DI\Profiling\Timer;
 
 return [
     'profiling.timer' => [

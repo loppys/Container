@@ -1,10 +1,10 @@
 <?php
 
-namespace Vengine\Libs\config;
+namespace Vengine\Libs\DI\config;
 
-use Vengine\Libs\Exceptions\ConfigResolveException;
-use Vengine\Libs\interfaces\ConfigureInterface;
-use Vengine\Libs\interfaces\ContainerSettingsInterface;
+use Vengine\Libs\DI\Exceptions\ConfigResolveException;
+use Vengine\Libs\DI\interfaces\ConfigureInterface;
+use Vengine\Libs\DI\interfaces\ContainerSettingsInterface;
 
 class ConfigResolver
 {

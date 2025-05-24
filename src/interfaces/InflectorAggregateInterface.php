@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\interfaces;
+namespace Vengine\Libs\DI\interfaces;
 
-use Vengine\Libs\Inflector;
+use Vengine\Libs\DI\Inflector;
 
 interface InflectorAggregateInterface extends AggregateInterface
 {

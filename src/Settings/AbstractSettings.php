@@ -1,8 +1,8 @@
 <?php
 
-namespace Vengine\Libs\Settings;
+namespace Vengine\Libs\DI\Settings;
 
-use Vengine\Libs\interfaces\ContainerSettingsInterface;
+use Vengine\Libs\DI\interfaces\ContainerSettingsInterface;
 
 abstract class AbstractSettings implements ContainerSettingsInterface
 {

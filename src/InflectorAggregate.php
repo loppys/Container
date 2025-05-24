@@ -1,10 +1,10 @@
 <?php
 
-namespace Vengine\Libs;
+namespace Vengine\Libs\DI;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Vengine\Libs\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\ContainerException;
 use Vengine\Libs\Exceptions\NotFoundException;
 use Vengine\Libs\interfaces\InflectorAggregateInterface;
 use Vengine\Libs\traits\ContainerAwareTrait;
