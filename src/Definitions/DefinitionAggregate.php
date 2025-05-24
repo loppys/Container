@@ -8,8 +8,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use Vengine\Libs\DI\Exceptions\ContainerException;
 use Vengine\Libs\DI\Exceptions\NotFoundException;
 use Vengine\Libs\DI\interfaces\DefinitionAggregateInterface;
-use Vengine\Libs\interfaces\DefinitionInterface;
-use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\interfaces\DefinitionInterface;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
 
 class DefinitionAggregate implements DefinitionAggregateInterface
 {

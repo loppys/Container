@@ -7,8 +7,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
-use Vengine\Libs\DI\Alias\Alias;
-use Vengine\Libs\DI\Alias\AliasCriteria;
 use Vengine\Libs\DI\Arguments\LinkServiceArgument;
 use Vengine\Libs\DI\Arguments\LiteralArgument;
 use Vengine\Libs\DI\Exceptions\CircularServiceLoadingException;
@@ -19,8 +17,8 @@ use Vengine\Libs\DI\interfaces\ContainerInterface;
 use Vengine\Libs\DI\interfaces\DefinitionInterface;
 use Vengine\Libs\DI\interfaces\LiteralArgumentInterface;
 use Vengine\Libs\DI\Storage\ArgumentTypeStorage;
-use Vengine\Libs\traits\ArgumentResolverTrait;
-use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\traits\ArgumentResolverTrait;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
 
 class Definition implements DefinitionInterface
 {

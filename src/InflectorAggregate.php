@@ -5,9 +5,9 @@ namespace Vengine\Libs\DI;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Vengine\Libs\DI\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\interfaces\InflectorAggregateInterface;
-use Vengine\Libs\traits\ContainerAwareTrait;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\interfaces\InflectorAggregateInterface;
+use Vengine\Libs\DI\traits\ContainerAwareTrait;
 use Generator;
 
 class InflectorAggregate implements InflectorAggregateInterface
