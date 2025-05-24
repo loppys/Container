@@ -1,9 +1,9 @@
 <?php
 
-use Vengine\Libs\Definitions\Definition;
-use Vengine\Libs\Definitions\DefinitionAggregate;
-use Vengine\Libs\config\Configure;
-use Vengine\Libs\Container;
+use Vengine\Libs\DI\Definitions\Definition;
+use Vengine\Libs\DI\Definitions\DefinitionAggregate;
+use Vengine\Libs\DI\config\Configure;
+use Vengine\Libs\DI\Container;
 
 class TestContainer extends Container
 {

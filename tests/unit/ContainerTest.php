@@ -9,9 +9,9 @@ use Psr\Container\NotFoundExceptionInterface;
 use TestClass;
 use TestDefClass;
 use Vengine\Cache\Drivers\AbstractDriver;
-use Vengine\Libs\Exceptions\ContainerException;
-use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
+use Vengine\Libs\DI\Exceptions\ContainerException;
+use Vengine\Libs\DI\Exceptions\NotFoundException;
+use Vengine\Libs\DI\ServiceCollectors\ArrayServiceCollector;
 
 /**
  * @group definition

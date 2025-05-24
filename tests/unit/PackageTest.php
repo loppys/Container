@@ -3,8 +3,8 @@
 namespace unit;
 
 use PHPUnit\Framework\TestCase;
-use Vengine\Libs\interfaces\ContainerInterface;
-use Vengine\Libs\Packages\AbstractPackage;
+use Vengine\Libs\DI\interfaces\ContainerInterface;
+use Vengine\Libs\DI\Packages\AbstractPackage;
 use TestContainer;
 
 class PackageTest extends TestCase

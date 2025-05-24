@@ -7,7 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Vengine\Libs\Exceptions\ContainerException;
 use Vengine\Libs\Exceptions\NotFoundException;
-use Vengine\Libs\ServiceCollectors\ArrayServiceCollector;
+use Vengine\Libs\DI\ServiceCollectors\ArrayServiceCollector;
 use TestContainer;
 use TestInflectorInterface;
 use TestClass;
