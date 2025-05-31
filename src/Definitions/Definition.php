@@ -275,15 +275,23 @@ class Definition implements DefinitionInterface
             $concrete = $this->resolveClass($concrete, $arguments);
         }
 
-        if (is_object($concrete)) {
-            $concrete = $this->resolveProperties($concrete, $this->replaceProperties);
-            $concrete = $this->invokeMethods($concrete);
-        }
-
         try {
             $container = $this->getContainer();
         } catch (ContainerException $e) {
             $container = null;
+        }
+
+        if (is_object($concrete)) {
+            if ($concrete instanceof ContainerAwareInterface && !is_null($container)) {
+                $concrete->setContainer($container);
+            }
+
+            $this->resolveProperties($concrete, $this->replaceProperties);
+            $this->invokeMethods($concrete);
+
+            $this->resolved = $concrete;
+
+            return $concrete;
         }
 
         if (is_string($concrete) && in_array($concrete, $this->recursiveCheck)) {
