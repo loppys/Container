@@ -441,7 +441,7 @@ class Container implements ContainerInterface, CollectorContainerInterface
 
             $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
 
-            return $arrayOf;
+            return count($arrayOf) < 2 ? $arrayOf[0] : $arrayOf;
         }
 
         if ($this->providers->provides($id)) {
