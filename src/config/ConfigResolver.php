@@ -51,8 +51,6 @@ class ConfigResolver
             }
         }
 
-        var_dump($baseConfig);
-
         foreach ($baseConfig['settings'] as $sk => $sv) {
             if (!class_exists($sk)) {
                 continue;
