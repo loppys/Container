@@ -143,6 +143,9 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
+    /**
+     * @throws ContainerException
+     */
     public function addRawArgument(mixed $value, ?string $name = null): DefinitionInterface
     {
         $type = gettype($value);
