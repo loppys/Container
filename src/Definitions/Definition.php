@@ -13,6 +13,7 @@ use Vengine\Libs\DI\Exceptions\CircularServiceLoadingException;
 use Vengine\Libs\DI\Exceptions\ContainerException;
 use Vengine\Libs\DI\Exceptions\NotFoundException;
 use Vengine\Libs\DI\interfaces\ArgumentInterface;
+use Vengine\Libs\DI\interfaces\ContainerAwareInterface;
 use Vengine\Libs\DI\interfaces\ContainerInterface;
 use Vengine\Libs\DI\interfaces\DefinitionInterface;
 use Vengine\Libs\DI\interfaces\LiteralArgumentInterface;
@@ -59,8 +60,9 @@ class Definition implements DefinitionInterface
             && method_exists($this->concrete, '__construct')
         ) {
             $rfm = (new ReflectionClass($this->concrete))->getConstructor();
+            $this->arguments = array_merge($this->arguments, $this->reflectArguments($rfm, $this->arguments));
 
-            $this->arguments = $this->reflectArguments($rfm, $this->arguments);
+            $this->constructorFetched = true;
         }
     }
 
@@ -352,7 +354,7 @@ class Definition implements DefinitionInterface
     protected function resolveClass(string $concrete, array $arguments = []): object
     {
         if (!empty($arguments)) {
-            $arguments = array_merge_recursive($this->arguments, $arguments);
+            $arguments = array_merge($this->arguments, $arguments);
         } else {
             $arguments = $this->arguments;
         }
@@ -374,8 +376,12 @@ class Definition implements DefinitionInterface
                 continue;
             }
 
-            $argument = $this->reflectArguments($construct, [$argument]);
-            $arguments[$name] = array_shift($argument);
+            if (is_object($argument) && !$argument instanceof ArgumentInterface) {
+                continue;
+            }
+
+            $arg = $this->reflectArguments($construct, [$argument]);
+            $arguments[$name] = array_shift($arg);
         }
 
         $resolved = $this->resolveArguments($arguments);
