@@ -25,6 +25,8 @@ class Definition implements DefinitionInterface
     use ArgumentResolverTrait;
     use ContainerAwareTrait;
 
+    private bool $constructorFetched = false;
+
     protected mixed $resolved = null;
     protected array $recursiveCheck = [];
     protected array $replaceProperties = [];
@@ -250,6 +252,10 @@ class Definition implements DefinitionInterface
     public function resolveNew(array $arguments = []): mixed
     {
         $concrete = $this->concrete;
+
+        if ($this->constructorFetched === false) {
+            $this->fetchConstructor();
+        }
 
         if (is_callable($concrete)) {
             $concrete = $this->resolveCallable($concrete, $arguments);

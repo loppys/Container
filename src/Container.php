@@ -184,7 +184,6 @@ class Container implements ContainerInterface, CollectorContainerInterface
         $def = new Definition($id);
 
         $def->setContainer($this);
-        $def->fetchConstructor();
 
         $sharedTags = $service['sharedTags'] ?? [];
         $refs = $service['refs'] ?? [];
