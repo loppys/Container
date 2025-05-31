@@ -478,13 +478,7 @@ class Container implements ContainerInterface, CollectorContainerInterface
                 'shared' => $this->getSettingsByName(DefinitionSettings::class)->isAutoShared()
             ]);
 
-            $resolved = (true === $new)
-                ? $this->definitions->resolveNew($id)
-                : $this->definitions->resolve($id);
-
-            $this->profilingEventHandler->handle(ProfilingEventTypeStorage::END_SERVICE_CREATION, $id);
-
-            return $this->inflectors->inflect($resolved);
+            return $this->get($id);
         }
 
         throw new NotFoundException(sprintf('Service (%s) is not being managed by the container or delegates', $id));
