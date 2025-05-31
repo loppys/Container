@@ -56,7 +56,6 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         }
 
         $definition->setContainer($this->getContainer());
-        $definition->fetchConstructor();
 
         $this->definitions[] = $definition->setId($id);
 
