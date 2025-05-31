@@ -300,7 +300,7 @@ class Definition implements DefinitionInterface
                 $concrete = $container->get($concrete);
             }
         }
-        
+
         if ($concrete instanceof ContainerAwareInterface && !is_null($container)) {
             $concrete->setContainer($container);
         }
