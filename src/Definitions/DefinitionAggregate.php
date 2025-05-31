@@ -143,7 +143,7 @@ class DefinitionAggregate implements DefinitionAggregateInterface
         $arrayOf = [];
 
         foreach ($this as $definition) {
-            if ($definition->hasTag($tag)) {
+            if ($definition->hasSharedTag($tag)) {
                 $arrayOf[] = $definition->setContainer($this->getContainer())->resolve($arguments);
             }
         }
