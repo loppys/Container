@@ -29,8 +29,6 @@ class ConfigResolver
                 }
 
                 $this->replaceResolve($baseConfig['services'], $overwriteConfig['services']);
-
-                unset($overwriteConfig['services']);
             }
 
             if (!empty($overwriteConfig['settings'])) {
@@ -39,12 +37,21 @@ class ConfigResolver
                 }
 
                 $this->replaceResolve($baseConfig['settings'], $overwriteConfig['settings']);
-
-                unset($overwriteConfig['settings']);
             }
 
             $baseConfig = $this->replaceResolve($baseConfig, $overwriteConfig);
+            $baseConfig = array_merge_recursive($baseConfig, $overwriteConfig);
+
+            if (!empty($overwriteConfig['settings'])) {
+                unset($overwriteConfig['settings']);
+            }
+
+            if (!empty($overwriteConfig['services'])) {
+                unset($overwriteConfig['services']);
+            }
         }
+
+        var_dump($baseConfig);
 
         foreach ($baseConfig['settings'] as $sk => $sv) {
             if (!class_exists($sk)) {
